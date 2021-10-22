@@ -3,6 +3,7 @@
 #include <glm/gtx/fast_trigonometry.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
+
 void Ship::initializeGL(GLuint program) {
   terminateGL();
 
@@ -13,8 +14,9 @@ void Ship::initializeGL(GLuint program) {
   m_translationLoc = abcg::glGetUniformLocation(m_program, "translation");
 
   m_rotation = 0.0f;
-  m_translation = glm::vec2(0);
+  m_translation = glm::vec2(0, -0.8f);
   m_velocity = glm::vec2(0);
+  is_ship = true;
 
   std::array<glm::vec2, 24> positions{
       // Ship body
@@ -100,6 +102,7 @@ void Ship::initializeGL(GLuint program) {
   abcg::glBindVertexArray(0);
 }
 
+
 void Ship::paintGL(const GameData &gameData) {
   if (gameData.m_state != State::Playing) return;
 
@@ -113,21 +116,6 @@ void Ship::paintGL(const GameData &gameData) {
 
   // Restart thruster blink timer every 100 ms
   if (m_trailBlinkTimer.elapsed() > 100.0 / 1000.0) m_trailBlinkTimer.restart();
-
-  if (gameData.m_input[static_cast<size_t>(Input::Up)]) {
-    // Show thruster trail during 50 ms
-    if (m_trailBlinkTimer.elapsed() < 50.0 / 1000.0) {
-      abcg::glEnable(GL_BLEND);
-      abcg::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-      // 50% transparent
-      abcg::glUniform4f(m_colorLoc, 1, 1, 1, 0.5f);
-
-      abcg::glDrawElements(GL_TRIANGLES, 14 * 3, GL_UNSIGNED_INT, nullptr);
-
-      abcg::glDisable(GL_BLEND);
-    }
-  }
 
   abcg::glUniform4fv(m_colorLoc, 1, &m_color.r);
   abcg::glDrawElements(GL_TRIANGLES, 12 * 3, GL_UNSIGNED_INT, nullptr);
@@ -145,16 +133,20 @@ void Ship::terminateGL() {
 
 void Ship::update(const GameData &gameData, float deltaTime) {
   // Rotate
-  if (gameData.m_input[static_cast<size_t>(Input::Left)])
-    m_rotation = glm::wrapAngle(m_rotation + 4.0f * deltaTime);
-  if (gameData.m_input[static_cast<size_t>(Input::Right)])
-    m_rotation = glm::wrapAngle(m_rotation - 4.0f * deltaTime);
+  //Ajustar movimento para transladar
+  float translation = 1.5f*deltaTime;
+  float offset = 0.845;
+  if (gameData.m_input[static_cast<size_t>(Input::Left)]) {
+    m_translation += glm::vec2{-translation, 0.0f};
+    if (m_translation.x <= -offset) {
+      m_translation.x = -offset;
+    }
+  }
 
-  // Apply thrust
-  if (gameData.m_input[static_cast<size_t>(Input::Up)] &&
-      gameData.m_state == State::Playing) {
-    // Thrust in the forward vector
-    glm::vec2 forward = glm::rotate(glm::vec2{0.0f, 1.0f}, m_rotation);
-    m_velocity += forward * deltaTime;
+  if (gameData.m_input[static_cast<size_t>(Input::Right)]) {
+    m_translation += glm::vec2{translation, 0.0f};
+    if (m_translation.x >= offset) {
+      m_translation.x = offset;
+    }
   }
 }
