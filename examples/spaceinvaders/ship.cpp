@@ -42,7 +42,7 @@ void Ship::initializeGL(GLuint program) {
 
       glm::vec2{-0.066f, -0.604f}, glm::vec2{+0.066f, -0.604f}, glm::vec2{+0.000f, -0.681f}, //28 coiso
 
-      glm::vec2{-0.014f, -0.640f}, glm::vec2{+0.014f, -0.640f}, glm::vec2{-0.014f, -0.713f}, glm::vec2{+0.014f, -0.713f}, //32
+      glm::vec2{-0.014f, -0.640f}, glm::vec2{+0.014f, -0.640f}, glm::vec2{-0.014f, -0.713f}, glm::vec2{+0.014f, -0.713f} //32
 
 
       };
@@ -54,7 +54,7 @@ void Ship::initializeGL(GLuint program) {
   }
   int num_red_vertices = 10;
   int num_green_vertices = 22;
-  int num_black_vertices = 4;
+  int num_black_vertices = 0;
   int num_vertices = num_red_vertices + num_green_vertices + num_black_vertices;
   std::vector<glm::vec4> m_vertexColors = std::vector<glm::vec4>();
 
@@ -63,12 +63,11 @@ void Ship::initializeGL(GLuint program) {
       m_vertexColors.push_back(glm::vec4{87, 46, 47, 255}/255.0f);
     } else if (i < num_green_vertices + num_red_vertices) {
       m_vertexColors.push_back(glm::vec4{170, 166, 155, 255}/255.0f);
-    } else if (i < num_red_vertices + num_green_vertices + num_black_vertices) {
-      m_vertexColors.push_back(glm::vec4{46, 60, 72, 255}/255.0f);
     }
   }
   std::vector<glm::vec4> colors(m_vertexColors);
 
+  
   const std::array indices
     {0, 1, 2,         3, 1, 2,       4, 3, 2,
      5, 6, 7,         8, 6, 7,       9, 8, 7,
