@@ -4,7 +4,7 @@
 #include "abcg.hpp"
 #include "gamedata.hpp"
 #include "shooter.hpp"
-
+#include <vector>
 class Enemies;
 class Bullets;
 class OpenGLWindow;
@@ -34,6 +34,7 @@ class Ship : Shooter {
   GLuint m_vao{};
   GLuint m_vbo{};
   GLuint m_ebo{};
+  GLuint m_vboColors{};
   abcg::ElapsedTimer m_trailBlinkTimer;
 };
 #endif

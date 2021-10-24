@@ -46,6 +46,9 @@ void OpenGLWindow::initializeGL() {
   // Create program to render the other objects
   m_objectsProgram = createProgramFromFile(getAssetsPath() + "objects.vert",
                                            getAssetsPath() + "objects.frag");
+  
+  m_shipProgram = createProgramFromFile(getAssetsPath() + "ship.vert",
+                                           getAssetsPath() + "ship.frag");
 
   abcg::glClearColor(0, 0, 0, 1);
 
@@ -63,7 +66,7 @@ void OpenGLWindow::initializeGL() {
 void OpenGLWindow::restart() {
   m_gameData.m_state = State::Playing;
 
-  m_ship.initializeGL(m_objectsProgram);
+  m_ship.initializeGL(m_shipProgram);
   m_enemies.initializeGL(m_objectsProgram, 4, 11); //44 enemies
   m_bullets.initializeGL(m_objectsProgram);
 }
@@ -143,6 +146,7 @@ void OpenGLWindow::resizeGL(int width, int height) {
 
 void OpenGLWindow::terminateGL() {
   abcg::glDeleteProgram(m_objectsProgram);
+  abcg::glDeleteProgram(m_shipProgram);
   m_enemies.terminateGL();
   m_bullets.terminateGL();
   m_ship.terminateGL();
