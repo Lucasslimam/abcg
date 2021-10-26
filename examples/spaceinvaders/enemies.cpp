@@ -153,7 +153,7 @@ Enemies::Enemy Enemies::createEnemy(glm::vec2 translation,
   std::vector<glm::vec4> colors = std::vector<glm::vec4>();
 
   for (int i = 0; i < positions.size(); i++) {
-    colors.push_back(glm::vec4{87.0f, 46.0f, 47.0f, 255.0f}/255.0f);
+    colors.push_back(glm::vec4{128.0f, 102.0f, 102.0f, 255.0f}/255.0f);
   }
 
   // Generate VBO

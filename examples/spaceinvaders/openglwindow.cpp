@@ -204,11 +204,7 @@ void OpenGLWindow::checkCollisions() {
     }
   }
 }
-/*
-X O O O 
-X O O O
-X O O O
-*/
+
 
 void OpenGLWindow::checkWinCondition() {
   if (m_enemies.num_enemies == 0) {
