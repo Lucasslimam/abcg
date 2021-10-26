@@ -26,9 +26,12 @@ class Enemies {
     virtual ~Enemy() = default;
     GLuint m_vao{};
     GLuint m_vbo{};
+    GLuint m_vboColors{};
+    GLuint m_ebo{};
 
     bool m_hit{false};
     int m_polygonSides{};
+    std::vector<glm::vec4> colors;
   };
 
  private:
@@ -40,7 +43,6 @@ class Enemies {
   GLint m_scaleLoc{};
 
   std::string sequence = "DLLLLDRRRR";
-  //std::string sequence = "XXXXXXXR";
   int index_sequence = 8; //começa indo para a direita
 
   std::vector<std::vector<Enemy>> m_enemies;

@@ -11,7 +11,7 @@ void Enemies::initializeGL(GLuint program, int lines, int columns) {
       std::chrono::steady_clock::now().time_since_epoch().count());
 
   m_program = program;
-  m_colorLoc = abcg::glGetUniformLocation(m_program, "color");
+  m_colorLoc = abcg::glGetAttribLocation(m_program, "inColor");
   m_scaleLoc = abcg::glGetUniformLocation(m_program, "scale");
   m_translationLoc = abcg::glGetUniformLocation(m_program, "translation");
 
@@ -23,6 +23,7 @@ void Enemies::initializeGL(GLuint program, int lines, int columns) {
     std::vector<Enemy> enemy_line = std::vector<Enemy>();
     for (int m = 0; m < columns; m++) {       /*0.175 para cada margem da tela */
       Enemy enemy = createEnemy(glm::vec2(m*0.15f -0.7675f, 0.9f - k*0.25f), 0.15f);
+      //Enemy enemy = createEnemy(glm::vec2(m*0.22f -0.7675f, 0.9f - k*0.25f), 0.15f);
       enemy_line.push_back(enemy);
     }
     m_enemies.push_back(enemy_line);
@@ -38,13 +39,13 @@ void Enemies::paintGL() {
       if (enemy.m_hit) continue;
       abcg::glBindVertexArray(enemy.m_vao);
 
-      abcg::glUniform4fv(m_colorLoc, 1, &enemy.m_color.r);
+      //abcg::glUniform4fv(m_colorLoc, 1, &enemy.m_color.r);
       abcg::glUniform1f(m_scaleLoc, enemy.m_scale);
 
       abcg::glUniform2f(m_translationLoc, enemy.m_translation.x,
                         enemy.m_translation.y);
 
-      abcg::glDrawArrays(GL_TRIANGLE_FAN, 0, enemy.m_polygonSides + 2);
+      abcg::glDrawElements(GL_TRIANGLES, 50, GL_UNSIGNED_INT, nullptr);
       abcg::glBindVertexArray(0);
     }
   }
@@ -56,6 +57,8 @@ void Enemies::terminateGL() {
   for (auto &enemy_line : m_enemies) {
     for (auto &enemy : enemy_line) {
       abcg::glDeleteBuffers(1, &enemy.m_vbo);
+      abcg::glDeleteBuffers(1, &enemy.m_vboColors);
+      abcg::glDeleteBuffers(1, &enemy.m_ebo);
       abcg::glDeleteVertexArrays(1, &enemy.m_vao);
     }
   }
@@ -106,28 +109,52 @@ Enemies::Enemy Enemies::createEnemy(glm::vec2 translation,
   Enemy enemy;
   enemy.is_ship = false;
 
-  auto &re{m_randomEngine};  // Shortcut
-
-  enemy.m_polygonSides = 3;
-
   // Choose a random color (actually, a grayscale)
-  std::uniform_real_distribution<float> randomIntensity(0.5f, 1.0f);
-  enemy.m_color = glm::vec4(1) * randomIntensity(re);
-
-  enemy.m_color.a = 1.0f;
   enemy.m_scale = scale;
   enemy.m_translation = translation;
 
   // Create geometry
-  std::vector<glm::vec2> positions(0);
-  positions.emplace_back(0, 0);
-  const auto step{M_PI * 2 / enemy.m_polygonSides};
-  std::uniform_real_distribution<float> randomRadius(0.5f, 0.5f);
-  for (const auto angle : iter::range(0.0, M_PI * 2, step)) {
-    const auto radius{randomRadius(re)};
-    positions.emplace_back(radius * std::cos(angle), radius * std::sin(angle));
+  std::array<glm::vec2, 40> positions{
+    //Asa esquerda
+    glm::vec2{-0.640f, 0.484f}, glm::vec2{-0.563f, 0.484f}, glm::vec2{-0.563f, -0.585f},
+    glm::vec2{-0.640f, -0.585f},
+
+    glm::vec2{-0.640f, -0.151f}, glm::vec2{-0.255f, -0.120f}, glm::vec2{-0.640f, 0.029f},
+    glm::vec2{-0.255f, 0.005f},
+
+    //Asa direita
+    glm::vec2{0.640f, 0.484f}, glm::vec2{0.563f, 0.484f}, glm::vec2{0.563f, -0.585f},
+    glm::vec2{0.640f, -0.585f},
+
+    glm::vec2{0.640f, -0.151f}, glm::vec2{0.255f, -0.120f}, glm::vec2{0.640f, 0.029f},
+    glm::vec2{0.255f, 0.005f},
+
+    //Cabine
+    glm::vec2{0.00f, -0.221f}, glm::vec2{-0.084573f, -0.204177f}, glm::vec2{-0.156271f, -0.156271f},
+    glm::vec2{-0.204177f, -0.084573f}, glm::vec2{-0.221f, 0.00f}, glm::vec2{-0.204177f, 0.084573f},
+    glm::vec2{-0.156271f, 0.156271f}, glm::vec2{-0.084573f, 0.204177f}, glm::vec2{0.00f, 0.221f},
+    glm::vec2{0.084573f, 0.204177}, glm::vec2{0.156271f, 0.156271f}, glm::vec2{0.204177f, 0.084573f},
+    glm::vec2{0.221f, -0.00f}, glm::vec2{0.204177f, -0.084573f}, glm::vec2{0.156271f, -0.156271f},
+    glm::vec2{0.084573f, -0.204177f}
+  };
+
+  for (auto &position : positions) {
+    //position /= glm::vec2{15.5f, 15.5f};
+    position *= 0.7f; //0.15
   }
-  positions.push_back(positions.at(1));
+
+  std::array<int, 50> indices
+  {0, 1, 2,     1, 2, 3,    4, 5, 6,     5, 6, 7,
+   8, 9, 10,    9, 10, 11,  12, 13, 14,  13, 14, 15,
+   
+   16, 17, 18,   16, 19, 20,    16, 21, 22,   16, 23, 24,
+   16, 25, 26,  16, 27, 28,    16, 29, 30,   16, 17, 31};
+
+  std::vector<glm::vec4> colors = std::vector<glm::vec4>();
+
+  for (int i = 0; i < positions.size(); i++) {
+    colors.push_back(glm::vec4{87.0f, 46.0f, 47.0f, 255.0f}/255.0f);
+  }
 
   // Generate VBO
   abcg::glGenBuffers(1, &enemy.m_vbo);
@@ -136,8 +163,24 @@ Enemies::Enemy Enemies::createEnemy(glm::vec2 translation,
                      positions.data(), GL_STATIC_DRAW);
   abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+
+  // Generate VBO of Colors
+  abcg::glGenBuffers(1, &enemy.m_vboColors);
+  abcg::glBindBuffer(GL_ARRAY_BUFFER, enemy.m_vboColors);
+  abcg::glBufferData(GL_ARRAY_BUFFER, (colors.size())*sizeof(glm::vec4), colors.data(), GL_STATIC_DRAW);
+  abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+
+  // Generate EBO
+  abcg::glGenBuffers(1, &enemy.m_ebo);
+  abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, enemy.m_ebo);
+  abcg::glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices.data(),
+                     GL_STATIC_DRAW);
+  abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
   // Get location of attributes in the program
   GLint positionAttribute{abcg::glGetAttribLocation(m_program, "inPosition")};
+  GLint colorAttribute{abcg::glGetAttribLocation(m_program, "inColor")};
 
   // Create VAO
   abcg::glGenVertexArrays(1, &enemy.m_vao);
@@ -148,6 +191,15 @@ Enemies::Enemy Enemies::createEnemy(glm::vec2 translation,
   abcg::glBindBuffer(GL_ARRAY_BUFFER, enemy.m_vbo);
   abcg::glEnableVertexAttribArray(positionAttribute);
   abcg::glVertexAttribPointer(positionAttribute, 2, GL_FLOAT, GL_FALSE, 0,
+                              nullptr);
+  abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+  abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, enemy.m_ebo);
+
+  //VAO Colors
+  abcg::glEnableVertexAttribArray(colorAttribute);
+  abcg::glBindBuffer(GL_ARRAY_BUFFER, enemy.m_vboColors);
+  abcg::glVertexAttribPointer(colorAttribute, 4, GL_FLOAT, GL_FALSE, 0,
                               nullptr);
   abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
 

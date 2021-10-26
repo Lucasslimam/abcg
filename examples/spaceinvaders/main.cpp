@@ -9,8 +9,10 @@ int main(int argc, char **argv) {
 
     auto window{std::make_unique<OpenGLWindow>()};
     window->setOpenGLSettings({.samples = 4});
-    window->setWindowSettings({.width = 600,
-                               .height = 600,
+    window->setWindowSettings({//.width = 600,
+                               //.height = 600,
+                               .width = 1920,
+                               .height = 1080,
                                .showFPS = false,
                                .showFullscreenButton = false,
                                .title = "Space Invaders"});
