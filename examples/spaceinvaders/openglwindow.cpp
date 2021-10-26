@@ -198,7 +198,7 @@ void OpenGLWindow::checkCollisions() {
     const auto shipTranslation{m_ship.m_translation};
     const auto distance{glm::distance(bullet.m_translation, shipTranslation)};
 
-    if (distance < m_bullets.m_scale + m_ship.m_scale * 0.3f) {
+    if (distance < m_bullets.m_scale + m_ship.m_scale * 0.5f) {
       m_gameData.m_state = State::GameOver;
       m_restartWaitTimer.restart();
     }

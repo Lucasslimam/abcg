@@ -135,7 +135,7 @@ void Bullets::update(Enemies::Enemy &enemy, Ship &ship, const GameData &gameData
       // Bullets are shot in the direction of the ship's forward vector
       glm::vec2 forward{glm::vec2{0.0f, -1.0f}};
       //const auto cannonOffset{(11.0f / 15.5f) * enemy.m_scale};
-      const auto bulletSpeed{0.025f};
+      const auto bulletSpeed{0.04f};
 
       Bullet bullet{.m_dead = false, .is_enemy = true,
                     .m_translation = enemy.m_translation + glm::vec2(0.0f, -0.6f)*enemy.m_scale,
