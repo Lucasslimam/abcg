@@ -30,6 +30,7 @@ class Bullets {
 
   GLuint m_vao{};
   GLuint m_vbo{};
+  GLuint m_ebo{};
 
   struct Bullet {
     bool m_dead{};

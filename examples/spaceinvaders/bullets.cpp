@@ -14,16 +14,21 @@ void Bullets::initializeGL(GLuint program) {
 
   m_bullets.clear();
 
-  // Create regular polygon
-  const auto sides{10};
+  std::array<glm::vec2, 6> positions {
+    glm::vec2{0.0f, -1.0f},  glm::vec2{-0.4f, -0.8f}, glm::vec2{0.4f, -0.8f},
+    glm::vec2{-0.4f, 0.8f}, 
+    glm::vec2{0.4f, 0.8f},
+    glm::vec2{0.0f, 1.0f} 
+  };
 
-  std::vector<glm::vec2> positions(0);
-  positions.emplace_back(0, 0);
-  const auto step{M_PI * 2 / sides};
-  for (const auto angle : iter::range(0.0, M_PI * 2, step)) {
-    positions.emplace_back(std::cos(angle), std::sin(angle));
+  std::array<int, 12> indices {
+    0, 1, 2,    1, 2, 3,    2, 3, 4,   3, 4, 5
+  };
+
+  for (auto &position : positions) {
+    position /= glm::vec2(1.8f, 0.5f);
   }
-  positions.push_back(positions.at(1));
+
 
   // Generate VBO of positions
   abcg::glGenBuffers(1, &m_vbo);
@@ -32,9 +37,16 @@ void Bullets::initializeGL(GLuint program) {
                      positions.data(), GL_STATIC_DRAW);
   abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+
+  // Generate EBO
+  abcg::glGenBuffers(1, &m_ebo);
+  abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+  abcg::glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices.data(),
+                     GL_STATIC_DRAW);
+  abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
   // Get location of attributes in the program
-  const GLint positionAttribute{
-      abcg::glGetAttribLocation(m_program, "inPosition")};
+  const GLint positionAttribute{abcg::glGetAttribLocation(m_program, "inPosition")};
 
   // Create VAO
   abcg::glGenVertexArrays(1, &m_vao);
@@ -48,6 +60,8 @@ void Bullets::initializeGL(GLuint program) {
                               nullptr);
   abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+  abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+
   // End of binding to current VAO
   abcg::glBindVertexArray(0);
 }
@@ -56,7 +70,7 @@ void Bullets::paintGL() {
   abcg::glUseProgram(m_program);
 
   abcg::glBindVertexArray(m_vao);
-  abcg::glUniform4f(m_colorLoc, 1, 1, 1, 1);
+  abcg::glUniform4f(m_colorLoc, 59.0f/238.0f, 238.0f/255.0f, 71.0f/255.0f, 1);
   abcg::glUniform1f(m_rotationLoc, 0);
   abcg::glUniform1f(m_scaleLoc, m_scale);
 
@@ -64,7 +78,7 @@ void Bullets::paintGL() {
     abcg::glUniform2f(m_translationLoc, bullet.m_translation.x,
                       bullet.m_translation.y);
 
-    abcg::glDrawArrays(GL_TRIANGLE_FAN, 0, 12);
+    abcg::glDrawElements(GL_TRIANGLES, 50, GL_UNSIGNED_INT, nullptr);
   }
 
   abcg::glBindVertexArray(0);
@@ -74,6 +88,7 @@ void Bullets::paintGL() {
 
 void Bullets::terminateGL() {
   abcg::glDeleteBuffers(1, &m_vbo);
+  abcg::glDeleteBuffers(1, &m_ebo);
   abcg::glDeleteVertexArrays(1, &m_vao);
 }
 
