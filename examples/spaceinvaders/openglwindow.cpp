@@ -53,6 +53,10 @@ void OpenGLWindow::initializeGL() {
   m_enemiesProgram = createProgramFromFile(getAssetsPath() + "enemies.vert",
                                            getAssetsPath() + "enemies.frag");
 
+  // Create program to render the stars
+  m_starsProgram = createProgramFromFile(getAssetsPath() + "stars.vert",
+                                       getAssetsPath() + "stars.frag");
+
   abcg::glClearColor(0, 0, 0, 1);
 
 #if !defined(__EMSCRIPTEN__)
@@ -68,7 +72,7 @@ void OpenGLWindow::initializeGL() {
 
 void OpenGLWindow::restart() {
   m_gameData.m_state = State::Playing;
-
+  m_starLayers.initializeGL(m_starsProgram, 25);
   m_ship.initializeGL(m_shipProgram);
   m_enemies.initializeGL(m_enemiesProgram, 4, 11); //44 enemies
   m_bullets.initializeGL(m_objectsProgram);
@@ -85,6 +89,7 @@ void OpenGLWindow::update() {
   }
 
   m_ship.update(m_gameData, deltaTime);
+  m_starLayers.update(deltaTime);
   m_enemies.update(deltaTime);
   m_bullets.update(m_ship, m_gameData, deltaTime);
   for (int line = 0; line < m_enemies.m_enemies.size(); line++) {
@@ -110,6 +115,7 @@ void OpenGLWindow::paintGL() {
 
   m_enemies.paintGL();
   m_bullets.paintGL();
+  m_starLayers.paintGL();
   m_ship.paintGL(m_gameData);
 }
 
@@ -154,6 +160,7 @@ void OpenGLWindow::terminateGL() {
   m_enemies.terminateGL();
   m_bullets.terminateGL();
   m_ship.terminateGL();
+  m_starLayers.terminateGL();
 }
 
 

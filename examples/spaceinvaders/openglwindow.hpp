@@ -9,6 +9,7 @@
 #include "bullets.hpp"
 #include "enemies.hpp"
 #include "ship.hpp"
+#include "starlayers.hpp"
 
 class OpenGLWindow : public abcg::OpenGLWindow {
  protected:
@@ -23,6 +24,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   GLuint m_objectsProgram{};
   GLuint m_shipProgram{};
   GLuint m_enemiesProgram{};
+  GLuint m_starsProgram{};
 
   int m_viewportWidth{};
   int m_viewportHeight{};
@@ -31,7 +33,8 @@ class OpenGLWindow : public abcg::OpenGLWindow {
 
   Ship m_ship;
   Bullets m_bullets;
-  Enemies m_enemies;    
+  Enemies m_enemies;
+  StarLayers m_starLayers;
 
   abcg::ElapsedTimer m_restartWaitTimer;
 

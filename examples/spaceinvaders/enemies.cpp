@@ -154,7 +154,7 @@ Enemies::Enemy Enemies::createEnemy(glm::vec2 translation,
 
   for (int i = 0; i < positions.size(); i++) {
     if (i < 17) {
-      colors.push_back(glm::vec4{61.0f, 45.0f, 202.0f, 255.0f}/255.0f);
+      colors.push_back(glm::vec4{171.0f, 142.0f, 171.0f, 255.0f}/255.0f);
     } else {
       colors.push_back(glm::vec4{191.0f, 192.0f, 171.0f, 255.0f}/255.0f);
     }
