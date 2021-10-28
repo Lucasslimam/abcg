@@ -3,7 +3,7 @@
 #include <cppitertools/itertools.hpp>
 #include <glm/gtx/fast_trigonometry.hpp>
 
-void Enemies::initializeGL(GLuint program, int lines, int columns) {
+void Enemies::initializeGL(GLuint program, int lines, int columns, bool first_iter) {
   terminateGL();
   index_sequence = 8;
   // Start pseudo-random number generator
@@ -18,11 +18,22 @@ void Enemies::initializeGL(GLuint program, int lines, int columns) {
   // Create asteroids
   m_enemies.clear();
   //m_enemies.resize(quantity);
+  
+  if (first_iter) {
+    for (int i = 0; i < lines; i++) {
+      std::vector<int> frame_line = std::vector<int>();
+      for (int j = 0; j < columns; j++) {
+        frame_line.push_back(0);
+      }
+      m_countFrames.push_back(frame_line);
+    }
+  }
 
   for (int k = 0; k < lines; k++) {
     std::vector<Enemy> enemy_line = std::vector<Enemy>();
     for (int m = 0; m < columns; m++) {       /*0.175 para cada margem da tela */
-      Enemy enemy = createEnemy(glm::vec2(m*0.15f -0.7675f, 0.9f - k*0.25f), 0.15f);
+      bool isDying = m_countFrames[k][m] < 400 and m_countFrames[k][m] > 0 and m_countFrames[k][m]%2 == 0;
+      Enemy enemy = createEnemy(glm::vec2(m*0.15f -0.7675f, 0.9f - k*0.25f), 0.15f, isDying);
       //Enemy enemy = createEnemy(glm::vec2(m*0.22f -0.7675f, 0.9f - k*0.25f), 0.15f);
       enemy_line.push_back(enemy);
     }
@@ -32,11 +43,17 @@ void Enemies::initializeGL(GLuint program, int lines, int columns) {
 }
 
 void Enemies::paintGL() {
+  //MELHORAR
   abcg::glUseProgram(m_program);
-
+  int line = 0;
+  int column = 0;
   for (const auto &enemy_line : m_enemies) {
     for (const auto &enemy : enemy_line) {
-      if (enemy.m_hit) continue;
+      //if (enemy.m_hit) continue; apenas isso
+      if (enemy.m_hit and m_countFrames[line][column] > 400) {
+        continue;
+      }
+
       abcg::glBindVertexArray(enemy.m_vao);
 
       //abcg::glUniform4fv(m_colorLoc, 1, &enemy.m_color.r);
@@ -47,7 +64,10 @@ void Enemies::paintGL() {
 
       abcg::glDrawElements(GL_TRIANGLES, 50, GL_UNSIGNED_INT, nullptr);
       abcg::glBindVertexArray(0);
+      column++;
     }
+    line++;
+    column = 0;
   }
 
   abcg::glUseProgram(0);
@@ -81,16 +101,31 @@ glm::vec2 Enemies::next_movement() {
 
 
 void Enemies::update(float deltaTime) {
-
+  int line = 0;
+  int column = 0;
+  for (auto &enemy_line : m_enemies) {
+    for (auto &enemy : enemy_line) {
+      if (enemy.m_hit and m_countFrames[line][column] > 400) continue;
+      m_countFrames[line][column]++;
+      column++;
+    }
+    line++;
+    column = 0;
+  }
+  line = 0;
+  column = 0;
   // Restart thruster blink timer every 100 ms
   if (move_timer.elapsed() > 500.0 / 1000.0) {
     move_timer.restart();
     glm::vec2 move = next_movement();
     for (auto &enemy_line : m_enemies) {
       for (auto &enemy : enemy_line) {
-        if (enemy.m_hit) continue;
+        if (enemy.m_hit and m_countFrames[line][column] > 400) continue;
         enemy.m_translation += move*0.08f;
+        column++;
       }
+      line++;
+      column = 0;
     }
   }
 }
@@ -104,8 +139,7 @@ bool Enemies::can_shoot(int line, int column) {
 
 
 
-Enemies::Enemy Enemies::createEnemy(glm::vec2 translation,
-                                              float scale) {
+Enemies::Enemy Enemies::createEnemy(glm::vec2 translation, float scale, bool isDying) {
   Enemy enemy;
   enemy.is_ship = false;
 
@@ -152,11 +186,13 @@ Enemies::Enemy Enemies::createEnemy(glm::vec2 translation,
 
   std::vector<glm::vec4> colors = std::vector<glm::vec4>();
 
+  float transparecy = isDying ? 50.0f : 255.0f;
+
   for (int i = 0; i < positions.size(); i++) {
     if (i < 17) {
-      colors.push_back(glm::vec4{171.0f, 142.0f, 171.0f, 255.0f}/255.0f);
+      colors.push_back(glm::vec4{171.0f, 142.0f, 171.0f, transparecy}/255.0f);
     } else {
-      colors.push_back(glm::vec4{191.0f, 192.0f, 171.0f, 255.0f}/255.0f);
+      colors.push_back(glm::vec4{191.0f, 192.0f, 171.0f, transparecy}/255.0f);
     }
   }
 

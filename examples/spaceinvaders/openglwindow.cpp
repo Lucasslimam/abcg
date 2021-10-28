@@ -74,8 +74,9 @@ void OpenGLWindow::restart() {
   m_gameData.m_state = State::Playing;
   m_starLayers.initializeGL(m_starsProgram, 25);
   m_ship.initializeGL(m_shipProgram);
-  m_enemies.initializeGL(m_enemiesProgram, 4, 11); //44 enemies
+  m_enemies.initializeGL(m_enemiesProgram, 4, 11, first_iter); //44 enemies
   m_bullets.initializeGL(m_objectsProgram);
+  first_iter = false;
 }
 
 void OpenGLWindow::update() {
@@ -179,23 +180,29 @@ void OpenGLWindow::checkCollisions() {
     }
   }
 
+  int line = 0;
+  int column = 0;
   // Check collision between bullets and enemies
   for (auto &bullet : m_bullets.m_bullets) {
     if (bullet.m_dead or bullet.is_enemy) continue; /*enemies can't kill themselves and one another*/
-
     for (auto &enemy_line : m_enemies.m_enemies) {
       for (auto &enemy : enemy_line) {
         if (enemy.m_hit) {continue;}
         const auto enemyTranslation{enemy.m_translation};
         const auto distance{glm::distance(bullet.m_translation, enemyTranslation)};
 
-        if (distance < m_bullets.m_scale + enemy.m_scale * 0.3f) {
+        if (distance < m_bullets.m_scale + enemy.m_scale * 0.3f and enemy.m_hit == false) {
           enemy.m_hit = true;
+          m_enemies.m_countFrames[line][column]++;
           m_enemies.num_enemies--;
           bullet.m_dead = true;
         }
+        column++;
       }
+      line++;
+      column = 0;
     }
+    line = 0;
   }
   /*Check collision between enemy bullets and ship*/
   for (auto &bullet : m_bullets.m_bullets) {

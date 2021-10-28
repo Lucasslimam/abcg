@@ -13,7 +13,7 @@ class OpenGLWindow;
 
 class Enemies {
  public:
-  void initializeGL(GLuint program, int lines, int columns);
+  void initializeGL(GLuint program, int lines, int columns, bool first_iter);
   void paintGL();
   void terminateGL();
 
@@ -46,11 +46,12 @@ class Enemies {
   int index_sequence = 8; //começa indo para a direita
 
   std::vector<std::vector<Enemy>> m_enemies;
+  std::vector<std::vector<int>> m_countFrames;
 
   std::default_random_engine m_randomEngine;
   std::uniform_real_distribution<float> m_randomDist{-1.0f, 1.0f};
 
-  Enemies::Enemy createEnemy(glm::vec2 translation = glm::vec2(0), float scale = 0.25f);
+  Enemies::Enemy createEnemy(glm::vec2 translation = glm::vec2(0), float scale = 0.25f, bool isDying = false);
 
   abcg::ElapsedTimer move_timer;
 

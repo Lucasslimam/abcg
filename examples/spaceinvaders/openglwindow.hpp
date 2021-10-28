@@ -21,6 +21,8 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   void terminateGL() override;
 
  private:
+  bool first_iter = true;
+
   GLuint m_objectsProgram{};
   GLuint m_shipProgram{};
   GLuint m_enemiesProgram{};
