@@ -112,7 +112,7 @@ void Enemies::update(float elapsedTime) {
 }
 
 bool Enemies::can_shoot(int line, int column) {
-  if (line + 1 >= m_enemies.size()) {
+  if ((size_t) (line + 1) >= m_enemies.size()) {
     return true;
   }
   return m_enemies[line +1][column].m_hit;
@@ -168,7 +168,7 @@ Enemies::Enemy Enemies::createEnemy(glm::vec2 translation,
 
   std::vector<glm::vec4> colors = std::vector<glm::vec4>();
 
-  for (int i = 0; i < positions.size(); i++) {
+  for (size_t i = 0; i < positions.size(); i++) {
     if (i < 17) {
       colors.push_back(glm::vec4{171.0f, 142.0f, 171.0f, 255.0f}/255.0f);
     } else {

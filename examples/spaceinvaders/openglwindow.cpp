@@ -4,6 +4,8 @@
 
 #include "abcg.hpp"
 
+#include <iostream>
+
 void OpenGLWindow::handleEvent(SDL_Event &event) {
   // Keyboard events
   if (event.type == SDL_KEYDOWN) {
@@ -94,9 +96,9 @@ void OpenGLWindow::update() {
   m_starLayers.update(deltaTime);
   m_enemies.update(elapsedTime);
   m_bullets.update(m_ship, m_gameData, deltaTime);
-  for (int line = 0; line < m_enemies.m_enemies.size(); line++) {
+  for (size_t line = 0; line < m_enemies.m_enemies.size(); line++) {
     auto &enemy_line = m_enemies.m_enemies[line];
-    for (int column = 0; column < enemy_line.size(); column++) {
+    for (size_t column = 0; column < enemy_line.size(); column++) {
       if (m_enemies.can_shoot(line, column)) {
         m_bullets.update(enemy_line[column], m_ship, m_gameData, deltaTime);
       }
