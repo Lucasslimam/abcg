@@ -63,6 +63,7 @@ void OpenGLWindow::initializeGL() {
   abcg::glEnable(GL_PROGRAM_POINT_SIZE);
 #endif
 
+
   // Start pseudo-random number generator
   m_randomEngine.seed(
       std::chrono::steady_clock::now().time_since_epoch().count());
@@ -80,6 +81,7 @@ void OpenGLWindow::restart() {
 
 void OpenGLWindow::update() {
   float deltaTime{static_cast<float>(getDeltaTime())};
+  float elapsedTime{static_cast<float>(getElapsedTime())};
 
   // Wait 5 seconds before restarting
   if (m_gameData.m_state != State::Playing &&
@@ -90,7 +92,7 @@ void OpenGLWindow::update() {
 
   m_ship.update(m_gameData, deltaTime);
   m_starLayers.update(deltaTime);
-  m_enemies.update(deltaTime);
+  m_enemies.update(elapsedTime);
   m_bullets.update(m_ship, m_gameData, deltaTime);
   for (int line = 0; line < m_enemies.m_enemies.size(); line++) {
     auto &enemy_line = m_enemies.m_enemies[line];
@@ -109,13 +111,14 @@ void OpenGLWindow::update() {
 
 void OpenGLWindow::paintGL() {
   update();
-
+  float elapsedTime{static_cast<float>(getElapsedTime())};
   abcg::glClear(GL_COLOR_BUFFER_BIT);
   abcg::glViewport(0, 0, m_viewportWidth, m_viewportHeight);
 
-  m_enemies.paintGL();
+
   m_bullets.paintGL();
   m_starLayers.paintGL();
+  m_enemies.paintGL(elapsedTime);
   m_ship.paintGL(m_gameData);
 }
 
@@ -191,6 +194,7 @@ void OpenGLWindow::checkCollisions() {
 
         if (distance < m_bullets.m_scale + enemy.m_scale * 0.3f) {
           enemy.m_hit = true;
+          enemy.m_hitTime = (float) getElapsedTime();
           m_enemies.num_enemies--;
           bullet.m_dead = true;
         }

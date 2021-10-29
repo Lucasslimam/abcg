@@ -14,7 +14,8 @@ void Enemies::initializeGL(GLuint program, int lines, int columns) {
   m_colorLoc = abcg::glGetAttribLocation(m_program, "inColor");
   m_scaleLoc = abcg::glGetUniformLocation(m_program, "scale");
   m_translationLoc = abcg::glGetUniformLocation(m_program, "translation");
-
+  m_timeLoc = abcg::glGetUniformLocation(m_program, "time");
+  m_alphaLoc = abcg::glGetUniformLocation(m_program, "alphaMin");
   // Create asteroids
   m_enemies.clear();
   //m_enemies.resize(quantity);
@@ -31,12 +32,15 @@ void Enemies::initializeGL(GLuint program, int lines, int columns) {
   num_enemies = lines*columns;
 }
 
-void Enemies::paintGL() {
+void Enemies::paintGL(float elapsedTime) {
   abcg::glUseProgram(m_program);
+  //Ativando a transparencia
+  abcg::glEnable(GL_BLEND); 
+  abcg::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   for (const auto &enemy_line : m_enemies) {
     for (const auto &enemy : enemy_line) {
-      if (enemy.m_hit) continue;
+      if (enemy.isDead(elapsedTime)) continue;
       abcg::glBindVertexArray(enemy.m_vao);
 
       //abcg::glUniform4fv(m_colorLoc, 1, &enemy.m_color.r);
@@ -44,11 +48,20 @@ void Enemies::paintGL() {
 
       abcg::glUniform2f(m_translationLoc, enemy.m_translation.x,
                         enemy.m_translation.y);
+      //std::cout << "Elapsed time " << elapsedTime << " \n";
+      abcg::glUniform1f(m_timeLoc, elapsedTime);
+
+      if (enemy.m_hit) {
+        abcg::glUniform1f(m_alphaLoc, 0);
+      } else {
+        abcg::glUniform1f(m_alphaLoc, 1);
+      }
 
       abcg::glDrawElements(GL_TRIANGLES, 50, GL_UNSIGNED_INT, nullptr);
       abcg::glBindVertexArray(0);
     }
   }
+  abcg::glDisable(GL_BLEND);
 
   abcg::glUseProgram(0);
 }
@@ -79,17 +92,20 @@ glm::vec2 Enemies::next_movement() {
   }
 }
 
+bool Enemies::Enemy::isDead(float elapsedTime) const {
+  return (m_hit and (elapsedTime - m_hitTime > 1.0f));
+}
 
-void Enemies::update(float deltaTime) {
-
+void Enemies::update(float elapsedTime) {
+  float multiplier = (num_enemies == 1) ? 0.20f:0.08f; //o último inimigo fica mais rápido
   // Restart thruster blink timer every 100 ms
   if (move_timer.elapsed() > 500.0 / 1000.0) {
     move_timer.restart();
     glm::vec2 move = next_movement();
     for (auto &enemy_line : m_enemies) {
       for (auto &enemy : enemy_line) {
-        if (enemy.m_hit) continue;
-        enemy.m_translation += move*0.08f;
+        if (enemy.isDead(elapsedTime)) continue;
+        enemy.m_translation += move*multiplier;
       }
     }
   }

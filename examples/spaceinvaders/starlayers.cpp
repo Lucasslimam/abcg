@@ -94,11 +94,8 @@ void StarLayers::update(float deltaTime) {
   for (auto &&[index, layer] : iter::enumerate(m_starLayers)) {
     const auto layerSpeedScale{1.0f / (index + 2.0f)};
     layer.m_translation -= glm::vec2(0.0f, 0.5f) * deltaTime * layerSpeedScale;
-
-    // Wrap-around
-    /*if (layer.m_translation.x < -1.0f) layer.m_translation.x += 2.0f;
-    if (layer.m_translation.x > +1.0f) layer.m_translation.x -= 2.0f;
-    if (layer.m_translation.y < -1.0f) layer.m_translation.y += 2.0f;
-    if (layer.m_translation.y > +1.0f) layer.m_translation.y -= 2.0f;*/
+    if (layer.m_translation.y <= -1) {
+      layer.m_translation.y += 2.0f;
+    }
   }
 }

@@ -70,13 +70,18 @@ void Bullets::paintGL() {
   abcg::glUseProgram(m_program);
 
   abcg::glBindVertexArray(m_vao);
-  abcg::glUniform4f(m_colorLoc, 59.0f/238.0f, 238.0f/255.0f, 71.0f/255.0f, 1);
+
   abcg::glUniform1f(m_rotationLoc, 0);
   abcg::glUniform1f(m_scaleLoc, m_scale);
 
   for (const auto &bullet : m_bullets) {
     abcg::glUniform2f(m_translationLoc, bullet.m_translation.x,
                       bullet.m_translation.y);
+    if(bullet.is_enemy) {
+      abcg::glUniform4f(m_colorLoc, 59.0f/238.0f, 238.0f/255.0f, 71.0f/255.0f, 1);
+    } else {
+      abcg::glUniform4f(m_colorLoc, 59.0f/238.0f, 71.0f/255.0f, 238.0f/255.0f, 1);
+    }
 
     abcg::glDrawElements(GL_TRIANGLES, 50, GL_UNSIGNED_INT, nullptr);
   }

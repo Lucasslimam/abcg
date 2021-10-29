@@ -14,7 +14,7 @@ class OpenGLWindow;
 class Enemies {
  public:
   void initializeGL(GLuint program, int lines, int columns);
-  void paintGL();
+  void paintGL(float elapsedTime);
   void terminateGL();
 
   void update(float deltaTime);
@@ -29,9 +29,12 @@ class Enemies {
     GLuint m_vboColors{};
     GLuint m_ebo{};
 
+    float m_hitTime{0.0f};
     bool m_hit{false};
     int m_polygonSides{};
     std::vector<glm::vec4> colors;
+
+    bool isDead(float elapsedTime) const;
   };
 
  private:
@@ -41,6 +44,8 @@ class Enemies {
   GLint m_colorLoc{};
   GLint m_translationLoc{};
   GLint m_scaleLoc{};
+  GLint m_timeLoc{};
+  GLint m_alphaLoc{};
 
   std::string sequence = "DLLLLDRRRR";
   int index_sequence = 8; //começa indo para a direita
