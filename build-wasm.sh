@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-BUILD_TYPE=Release
-
+#BUILD_TYPE=Release
+BUILD_TYPE=Debug
 # Reset build directory
 rm -rf build
 mkdir -p build && cd build

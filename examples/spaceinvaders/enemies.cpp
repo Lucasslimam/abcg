@@ -50,7 +50,7 @@ void Enemies::paintGL(float elapsedTime) {
         abcg::glUniform1f(m_alphaLoc, 1);
       }
 
-      abcg::glDrawElements(GL_TRIANGLES, 50, GL_UNSIGNED_INT, nullptr);
+      abcg::glDrawElements(GL_TRIANGLES, 48, GL_UNSIGNED_INT, nullptr);
       abcg::glBindVertexArray(0);
     }
   }
@@ -121,7 +121,7 @@ Enemies::Enemy Enemies::createEnemy(glm::vec2 translation, float scale) {
   enemy.m_translation = translation;
 
   // Create geometry
-  std::array<glm::vec2, 40> positions{
+  std::array<glm::vec2, 32> positions{
     //Left wing
     glm::vec2{-0.640f, 0.484f}, glm::vec2{-0.563f, 0.484f}, glm::vec2{-0.563f, -0.585f},
     glm::vec2{-0.640f, -0.585f},
