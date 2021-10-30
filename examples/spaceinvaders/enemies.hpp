@@ -48,7 +48,7 @@ class Enemies {
   GLint m_alphaLoc{};
 
   std::string sequence = "DLLLLDRRRR";
-  int index_sequence = 8; //começa indo para a direita
+  int index_sequence = 8; //Starting going to the right
 
   std::vector<std::vector<Enemy>> m_enemies;
 

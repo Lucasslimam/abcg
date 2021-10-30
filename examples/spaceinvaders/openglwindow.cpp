@@ -49,9 +49,11 @@ void OpenGLWindow::initializeGL() {
   m_objectsProgram = createProgramFromFile(getAssetsPath() + "objects.vert",
                                            getAssetsPath() + "objects.frag");
   
+  // Create program to render the ship
   m_shipProgram = createProgramFromFile(getAssetsPath() + "ship.vert",
                                            getAssetsPath() + "ship.frag");
 
+  // Create program to render enemies
   m_enemiesProgram = createProgramFromFile(getAssetsPath() + "enemies.vert",
                                            getAssetsPath() + "enemies.frag");
 
@@ -162,6 +164,7 @@ void OpenGLWindow::terminateGL() {
   abcg::glDeleteProgram(m_objectsProgram);
   abcg::glDeleteProgram(m_shipProgram);
   abcg::glDeleteProgram(m_enemiesProgram);
+  abcg::glDeleteProgram(m_starsProgram);
   m_enemies.terminateGL();
   m_bullets.terminateGL();
   m_ship.terminateGL();
@@ -225,5 +228,3 @@ void OpenGLWindow::checkWinCondition() {
     m_restartWaitTimer.restart();
   }
 }
-
-//pega o x do inimigo, o x da nave, subtrai e ve se ta dentro de um range

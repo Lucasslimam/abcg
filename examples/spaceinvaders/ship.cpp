@@ -20,36 +20,33 @@ void Ship::initializeGL(GLuint program) {
   is_ship = true;
 
 
-
-  std::array<glm::vec2, 40> positions{
-      // Ship body
-      //Sector 1 (red)
+  std::array<glm::vec2, 32> positions{
+      //Drawing Left Wing
       glm::vec2{-0.083f, 0.458f}, glm::vec2{-0.347f, -0.246f},  glm::vec2{-0.073f, -0.099f},
       glm::vec2{-0.305, -0.386}, glm::vec2{-0.114f, -0.417f},
-      //Sector 2 (red)
+      //Drawing Right Wing
       glm::vec2{0.083f, 0.458f}, glm::vec2{0.347f, -0.246f},  glm::vec2{0.073f, -0.099f},
       glm::vec2{0.305, -0.386}, glm::vec2{0.114f, -0.417f},
 
-      //Middle (green)
-      glm::vec2{0.00f, 0.694f}, glm::vec2{-0.083f, 0.458f},  glm::vec2{+0.083f, 0.458f}, //Head
+      //Drawin the Middle
+      glm::vec2{0.00f, 0.694f}, glm::vec2{-0.083f, 0.458f},  glm::vec2{+0.083f, 0.458f},
       glm::vec2{+0.073f, -0.099f}, glm::vec2{-0.073f, -0.099f},
 
-      glm::vec2{-0.144f, -0.417f}, glm::vec2{0.144f, -0.417f}, //17 coiso
+      glm::vec2{-0.144f, -0.417f}, glm::vec2{0.144f, -0.417f},
 
-      glm::vec2{-0.144f, -0.417f}, glm::vec2{+0.144f, -0.417f}, glm::vec2{-0.084f, -0.489f}, glm::vec2{+0.084f, -0.489f}, //21 coiso
+      glm::vec2{-0.144f, -0.417f}, glm::vec2{+0.144f, -0.417f}, glm::vec2{-0.084f, -0.489f}, glm::vec2{+0.084f, -0.489f},
 
-      glm::vec2{-0.084f, -0.489f}, glm::vec2{+0.084f, -0.489f}, glm::vec2{-0.066f, -0.604f}, glm::vec2{+0.066f, -0.604f}, //25 coiso
+      glm::vec2{-0.084f, -0.489f}, glm::vec2{+0.084f, -0.489f}, glm::vec2{-0.066f, -0.604f}, glm::vec2{+0.066f, -0.604f},
 
-      glm::vec2{-0.066f, -0.604f}, glm::vec2{+0.066f, -0.604f}, glm::vec2{+0.000f, -0.681f}, //28 coiso
+      glm::vec2{-0.066f, -0.604f}, glm::vec2{+0.066f, -0.604f}, glm::vec2{+0.000f, -0.681f},
 
-      glm::vec2{-0.014f, -0.640f}, glm::vec2{+0.014f, -0.640f}, glm::vec2{-0.014f, -0.713f}, glm::vec2{+0.014f, -0.713f} //32
+      glm::vec2{-0.014f, -0.640f}, glm::vec2{+0.014f, -0.640f}, glm::vec2{-0.014f, -0.713f}, glm::vec2{+0.014f, -0.713f}
 
 
       };
 
-  // Normalize
+  // Ajdusting scale
   for (auto &position : positions) {
-    //position /= glm::vec2{15.5f, 15.5f};
     position /= glm::vec2{0.4f, 0.4f};
   }
   int num_red_vertices = 10;
@@ -60,8 +57,10 @@ void Ship::initializeGL(GLuint program) {
 
   for (int i = 0; i < num_vertices; i++) {
     if (i < num_red_vertices) {
+      //Painting Wings
       m_vertexColors.push_back(glm::vec4{87, 46, 47, 255}/255.0f);
     } else if (i < num_green_vertices + num_red_vertices) {
+      //Painting the middle
       m_vertexColors.push_back(glm::vec4{170, 166, 155, 255}/255.0f);
     }
   }
@@ -134,7 +133,6 @@ void Ship::paintGL(const GameData &gameData) {
   abcg::glUseProgram(m_program);
 
   abcg::glBindVertexArray(m_vao);
-  //abcg::glEnableVertexAttribArray(1);
 
   abcg::glUniform1f(m_scaleLoc, m_scale);
   abcg::glUniform1f(m_rotationLoc, m_rotation);
@@ -143,8 +141,7 @@ void Ship::paintGL(const GameData &gameData) {
   // Restart thruster blink timer every 100 ms
   if (m_trailBlinkTimer.elapsed() > 100.0 / 1000.0) m_trailBlinkTimer.restart();
 
-  //abcg::glUniform4fv(m_colorLoc, 1, &m_color.r);
-  abcg::glDrawElements(GL_TRIANGLES, 50, GL_UNSIGNED_INT, nullptr);
+  abcg::glDrawElements(GL_TRIANGLES, 20*3, GL_UNSIGNED_INT, nullptr);
 
   abcg::glBindVertexArray(0);
 
@@ -159,8 +156,6 @@ void Ship::terminateGL() {
 }
 
 void Ship::update(const GameData &gameData, float deltaTime) {
-  // Rotate
-  //Ajustar movimento para transladar
   float translation = 1.5f*deltaTime;
   float offset = 0.845;
   if (gameData.m_input[static_cast<size_t>(Input::Left)]) {

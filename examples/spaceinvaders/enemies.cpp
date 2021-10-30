@@ -6,25 +6,19 @@
 void Enemies::initializeGL(GLuint program, int lines, int columns) {
   terminateGL();
   index_sequence = 8;
-  // Start pseudo-random number generator
-  m_randomEngine.seed(
-      std::chrono::steady_clock::now().time_since_epoch().count());
-
   m_program = program;
   m_colorLoc = abcg::glGetAttribLocation(m_program, "inColor");
   m_scaleLoc = abcg::glGetUniformLocation(m_program, "scale");
   m_translationLoc = abcg::glGetUniformLocation(m_program, "translation");
   m_timeLoc = abcg::glGetUniformLocation(m_program, "time");
   m_alphaLoc = abcg::glGetUniformLocation(m_program, "alphaMin");
-  // Create asteroids
+  // Create enemies
   m_enemies.clear();
-  //m_enemies.resize(quantity);
 
   for (int k = 0; k < lines; k++) {
     std::vector<Enemy> enemy_line = std::vector<Enemy>();
     for (int m = 0; m < columns; m++) {       /*0.175 para cada margem da tela */
       Enemy enemy = createEnemy(glm::vec2(m*0.15f -0.7675f, 0.9f - k*0.25f), 0.15f);
-      //Enemy enemy = createEnemy(glm::vec2(m*0.22f -0.7675f, 0.9f - k*0.25f), 0.15f);
       enemy_line.push_back(enemy);
     }
     m_enemies.push_back(enemy_line);
@@ -43,14 +37,13 @@ void Enemies::paintGL(float elapsedTime) {
       if (enemy.isDead(elapsedTime)) continue;
       abcg::glBindVertexArray(enemy.m_vao);
 
-      //abcg::glUniform4fv(m_colorLoc, 1, &enemy.m_color.r);
       abcg::glUniform1f(m_scaleLoc, enemy.m_scale);
 
       abcg::glUniform2f(m_translationLoc, enemy.m_translation.x,
                         enemy.m_translation.y);
-      //std::cout << "Elapsed time " << elapsedTime << " \n";
       abcg::glUniform1f(m_timeLoc, elapsedTime);
 
+      //Make the enemy blink when the enemy is defeated
       if (enemy.m_hit) {
         abcg::glUniform1f(m_alphaLoc, 0);
       } else {
@@ -98,7 +91,7 @@ bool Enemies::Enemy::isDead(float elapsedTime) const {
 
 void Enemies::update(float elapsedTime) {
   float multiplier = (num_enemies == 1) ? 0.20f:0.08f; //o último inimigo fica mais rápido
-  // Restart thruster blink timer every 100 ms
+  // Make the movement like the original spaceinvaders
   if (move_timer.elapsed() > 500.0 / 1000.0) {
     move_timer.restart();
     glm::vec2 move = next_movement();
@@ -111,6 +104,7 @@ void Enemies::update(float elapsedTime) {
   }
 }
 
+// The enemy can shoot if there is no enemy under himself.
 bool Enemies::can_shoot(int line, int column) {
   if ((size_t) (line + 1) >= m_enemies.size()) {
     return true;
@@ -118,10 +112,7 @@ bool Enemies::can_shoot(int line, int column) {
   return m_enemies[line +1][column].m_hit;
 }
 
-
-
-Enemies::Enemy Enemies::createEnemy(glm::vec2 translation,
-                                              float scale) {
+Enemies::Enemy Enemies::createEnemy(glm::vec2 translation, float scale) {
   Enemy enemy;
   enemy.is_ship = false;
 
@@ -131,21 +122,21 @@ Enemies::Enemy Enemies::createEnemy(glm::vec2 translation,
 
   // Create geometry
   std::array<glm::vec2, 40> positions{
-    //Asa esquerda
+    //Left wing
     glm::vec2{-0.640f, 0.484f}, glm::vec2{-0.563f, 0.484f}, glm::vec2{-0.563f, -0.585f},
     glm::vec2{-0.640f, -0.585f},
 
     glm::vec2{-0.640f, -0.151f}, glm::vec2{-0.255f, -0.120f}, glm::vec2{-0.640f, 0.029f},
     glm::vec2{-0.255f, 0.005f},
 
-    //Asa direita
+    //Right wing
     glm::vec2{0.640f, 0.484f}, glm::vec2{0.563f, 0.484f}, glm::vec2{0.563f, -0.585f},
     glm::vec2{0.640f, -0.585f},
 
     glm::vec2{0.640f, -0.151f}, glm::vec2{0.255f, -0.120f}, glm::vec2{0.640f, 0.029f},
     glm::vec2{0.255f, 0.005f},
 
-    //Cabine
+    //Cabin
     glm::vec2{0.00f, -0.221f}, glm::vec2{-0.084573f, -0.204177f}, glm::vec2{-0.156271f, -0.156271f},
     glm::vec2{-0.204177f, -0.084573f}, glm::vec2{-0.221f, 0.00f}, glm::vec2{-0.204177f, 0.084573f},
     glm::vec2{-0.156271f, 0.156271f}, glm::vec2{-0.084573f, 0.204177f}, glm::vec2{0.00f, 0.221f},
@@ -154,12 +145,12 @@ Enemies::Enemy Enemies::createEnemy(glm::vec2 translation,
     glm::vec2{0.084573f, -0.204177f}
   };
 
+  //Ajusting scale
   for (auto &position : positions) {
-    //position /= glm::vec2{15.5f, 15.5f};
-    position *= 0.7f; //0.15
+    position *= 0.7f;
   }
 
-  std::array<int, 50> indices
+  std::array<int, 48> indices
   {0, 1, 2,     1, 2, 3,    4, 5, 6,     5, 6, 7,
    8, 9, 10,    9, 10, 11,  12, 13, 14,  13, 14, 15,
    
@@ -170,8 +161,10 @@ Enemies::Enemy Enemies::createEnemy(glm::vec2 translation,
 
   for (size_t i = 0; i < positions.size(); i++) {
     if (i < 17) {
+      //Painting wings
       colors.push_back(glm::vec4{171.0f, 142.0f, 171.0f, 255.0f}/255.0f);
     } else {
+      //Painting cabin
       colors.push_back(glm::vec4{191.0f, 192.0f, 171.0f, 255.0f}/255.0f);
     }
   }

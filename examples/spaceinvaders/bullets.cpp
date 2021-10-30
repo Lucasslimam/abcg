@@ -14,6 +14,7 @@ void Bullets::initializeGL(GLuint program) {
 
   m_bullets.clear();
 
+  //Bullet shape
   std::array<glm::vec2, 6> positions {
     glm::vec2{0.0f, -1.0f},  glm::vec2{-0.4f, -0.8f}, glm::vec2{0.4f, -0.8f},
     glm::vec2{-0.4f, 0.8f}, 
@@ -21,6 +22,7 @@ void Bullets::initializeGL(GLuint program) {
     glm::vec2{0.0f, 1.0f} 
   };
 
+  //Drawing bullet's triangles
   std::array<int, 12> indices {
     0, 1, 2,    1, 2, 3,    2, 3, 4,   3, 4, 5
   };
@@ -28,7 +30,6 @@ void Bullets::initializeGL(GLuint program) {
   for (auto &position : positions) {
     position /= glm::vec2(1.8f, 0.5f);
   }
-
 
   // Generate VBO of positions
   abcg::glGenBuffers(1, &m_vbo);
@@ -83,7 +84,7 @@ void Bullets::paintGL() {
       abcg::glUniform4f(m_colorLoc, 59.0f/238.0f, 71.0f/255.0f, 238.0f/255.0f, 1);
     }
 
-    abcg::glDrawElements(GL_TRIANGLES, 50, GL_UNSIGNED_INT, nullptr);
+    abcg::glDrawElements(GL_TRIANGLES, 4*3, GL_UNSIGNED_INT, nullptr);
   }
 
   abcg::glBindVertexArray(0);
@@ -101,7 +102,7 @@ void Bullets::update(Ship &ship, const GameData &gameData, float deltaTime) { //
   // Create a pair of bullets
   if (gameData.m_input[static_cast<size_t>(Input::Fire)] &&
       gameData.m_state == State::Playing) {
-    // At least 250 ms must have passed since the last bullets
+    // 250 ms of delay for bullets
     if (ship.m_bulletCoolDownTimer.elapsed() > 250.0 / 1000.0) { //add na classe base
       ship.m_bulletCoolDownTimer.restart();
 
@@ -120,7 +121,7 @@ void Bullets::update(Ship &ship, const GameData &gameData, float deltaTime) { //
       m_bullets.push_back(bullet);
 
       // Moves ship in the opposite direction
-      ship.m_velocity -= forward * 0.1f;
+      ship.m_velocity -= forward * 0.1f; //Remover
     }
   }
 
@@ -140,13 +141,11 @@ void Bullets::update(Ship &ship, const GameData &gameData, float deltaTime) { //
   m_bullets.remove_if([](const Bullet &p) { return p.m_dead; });
 }
 
-//inimigos nao podem atirar se tem bicho na frente (lista de listas com indices)
-//de onde o tiro sai
-//o tiro só sai se o inimigo esteve no mesmo X que o player
 
 void Bullets::update(Enemies::Enemy &enemy, Ship &ship, const GameData &gameData, float deltaTime) { //muda o nome das var
   // Create a pair of bullets
   float difference = (enemy.m_translation - ship.m_translation).x;
+  // The enemy will try to shooting only when he is not dead and the ship has appeared in front of him
   if (gameData.m_state == State::Playing && !enemy.m_hit && std::abs(difference) <= 0.009f) {
     // At least 250 ms must have passed since the last bullets
     if (enemy.m_bulletCoolDownTimer.elapsed() > 1000.0 / 1000.0) { //add na classe base
@@ -154,7 +153,6 @@ void Bullets::update(Enemies::Enemy &enemy, Ship &ship, const GameData &gameData
 
       // Bullets are shot in the direction of the ship's forward vector
       glm::vec2 forward{glm::vec2{0.0f, -1.0f}};
-      //const auto cannonOffset{(11.0f / 15.5f) * enemy.m_scale};
       const auto bulletSpeed{0.04f};
 
       Bullet bullet{.m_dead = false, .is_enemy = true,
