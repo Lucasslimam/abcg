@@ -73,14 +73,13 @@ void Ship::initializeGL(GLuint program) {
      10, 11, 12,      11, 12, 13,    14, 13, 11,
      15, 14, 13,      16, 15, 13,    17, 18, 19,
      20, 19, 18,      21, 22, 23,    22, 23, 24,
-     27, 26, 25,      28, 29, 30,    29, 30, 31,
-     32, 33, 34,      33, 34, 35};
+     27, 26, 25,      28, 29, 30,    29, 30, 31};
 
 
   // Generate VBO
   abcg::glGenBuffers(1, &m_vbo);
   abcg::glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-  abcg::glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions.data(),
+  abcg::glBufferData(GL_ARRAY_BUFFER, (positions.size())*sizeof(float)*2, positions.data(),
                      GL_STATIC_DRAW);
   abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -141,7 +140,7 @@ void Ship::paintGL(const GameData &gameData) {
   // Restart thruster blink timer every 100 ms
   if (m_trailBlinkTimer.elapsed() > 100.0 / 1000.0) m_trailBlinkTimer.restart();
 
-  abcg::glDrawElements(GL_TRIANGLES, 20*3, GL_UNSIGNED_INT, nullptr);
+  abcg::glDrawElements(GL_TRIANGLES, 18*3, GL_UNSIGNED_INT, nullptr);
 
   abcg::glBindVertexArray(0);
 
