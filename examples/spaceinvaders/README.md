@@ -1,6 +1,7 @@
 **Nome**: Lucas da Silva de Lima
 **RA**: 11201722101
 
+**Link de acesso para o jogo na web**: https://lucasslimam.github.io/abcg/
 
 # Proposta do Jogo
 A aplicação em questão se trata de uma tentativa de replicar o jogo Space Invaders utilizando algumas referências de Star Wars, as quais utilizei para me inspirar no desenho das naves. Neste projeto, me foquei nos itens que considerei mais importantes para ser possível jogar e que, de certa forma, utilizasse boa parte do visto em aula.
@@ -31,5 +32,3 @@ O controle da nave se dá apenas pelo movimento esquerda-direita, sendo um movim
 
 
 **Atenção**: O último inimigo vivo tem sua movimentação aumentada.
-
-
