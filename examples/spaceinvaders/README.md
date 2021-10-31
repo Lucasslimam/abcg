@@ -30,6 +30,6 @@ O controle da nave se dá apenas pelo movimento esquerda-direita, sendo um movim
 |  A/<-- | Ir para esquerda |
 
 
-
+**Atenção**: O último inimigo vivo tem sua movimentação aumentada.
 
 
