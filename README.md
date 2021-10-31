@@ -3,7 +3,7 @@
 
 **Link de acesso para o jogo na web**: https://lucasslimam.github.io/abcg/
 
-**Localização do código C++ no repositório**: abcg/examples/spaceinvaders
+**Localização do código C++ no repositório**: /examples/spaceinvaders
 
 # Proposta do Jogo
 A aplicação em questão se trata de uma tentativa de replicar o jogo Space Invaders utilizando algumas referências de Star Wars, as quais utilizei para me inspirar no desenho das naves. Neste projeto, me foquei nos itens que considerei mais importantes para ser possível jogar e que, de certa forma, utilizasse boa parte do visto em aula.
