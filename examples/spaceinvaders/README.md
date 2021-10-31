@@ -13,7 +13,7 @@ O controle da nave se dá apenas pelo movimento esquerda-direita, sendo um movim
 - A nave se move por um escalar multiplicado pela variação do tempo, que dita o deslocamento da nave, que se dá visivelmente de forma contínua diferentemente dos inimigos;
 - Os inimigos possuem a ação de se mover de forma mais cadenciada, podendo dar o próximo passo a cada 0,5 segundos;
 - Os inimigos atiram apenas quando a Nave aparece em sua visão;
-- Os inimigos não podem atirar na nave caso haja outro inimigo logo abaixo, isso é feito verificando se a coordenada X da nave está em um certo intervalo X de visão em relação ao inimigo;
+- Os inimigos não podem atirar na nave caso haja outro inimigo logo abaixo, isso é feito verificando se a coordenada X da nave está em um certo intervalo X de visão em relação ao inimigo.
 
 # Maiores desafios implementados
 1. Após o inimigo ser derrotado pela nave, ele fica por alguns instantes piscando, para realizar isso, a solução encontrada foi variar o **Alpha** dos vértices da nave inimiga de acordo com uma função **Seno** evitando condicionais. Dessa forma, durante todas as renderizações faço o alpha variar entre um alphaMin e alphaMax, de tal forma que quando o inimigo é atingido, o alphaMIn que antes era igual ao alphaMax=1, acaba recebendo o valor zero e passa dar a sensação de **blink**;
