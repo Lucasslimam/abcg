@@ -36,7 +36,8 @@ class Box {
   GLint m_modelMatrixLoc{};
   GLint m_colorLoc{};
   
-
+  float m_angle{90.0f};
+  glm::mat4 m_modelMatrix{};
   GLuint m_vao{};
   GLuint m_vbo{};
   GLuint m_ebo{};

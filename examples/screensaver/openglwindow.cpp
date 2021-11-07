@@ -194,7 +194,8 @@ void OpenGLWindow::terminateGL() {
 
 void OpenGLWindow::update() {
   const float deltaTime{static_cast<float>(getDeltaTime())};
-
+  m_ball.update(deltaTime);
+  m_box.update(deltaTime);
   // Update LookAt camera
   m_camera.dolly(m_dollySpeed * deltaTime);
   m_camera.truck(m_truckSpeed * deltaTime);

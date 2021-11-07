@@ -35,13 +35,15 @@ class Ball {
   GLint m_modelMatrixLoc{};
   GLint m_colorLoc{};
 
+  glm::mat4 m_modelMatrix = glm::mat4(1.0);
+
   GLuint m_vao{};
   GLuint m_vbo{};
   GLuint m_ebo{};
   GLuint m_vboColors{};
 
   glm::vec3 m_position{glm::vec3(0)};
-  glm::vec3 m_velocity{glm::vec3(0)};
+  glm::vec3 m_velocity{glm::vec3(1.0f, 1.0f, 0.0f)};
   abcg::ElapsedTimer m_trailBlinkTimer;
 
   std::vector<Vertex> m_vertices;
