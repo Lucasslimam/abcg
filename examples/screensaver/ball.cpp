@@ -84,6 +84,9 @@ void Ball::loadModelFromFile(std::string_view path) {
 void Ball::initializeGL(GLuint program) {
   terminateGL();
 
+  auto seed{std::chrono::steady_clock::now().time_since_epoch().count()};
+  m_randomEngine.seed(seed);
+
   m_program = program;
   m_viewMatrixLoc = abcg::glGetUniformLocation(m_program, "viewMatrix");
   m_projMatrixLoc = abcg::glGetUniformLocation(m_program, "projMatrix");
@@ -139,9 +142,10 @@ void Ball::paintGL() {
   m_modelMatrix = glm::translate(m_modelMatrix, m_position);
   m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(90.0f), glm::vec3(0, 1, 0));
   m_modelMatrix = glm::scale(m_modelMatrix, glm::vec3(0.125f));
+  
 
   abcg::glUniformMatrix4fv(m_modelMatrixLoc, 1, GL_FALSE, &m_modelMatrix[0][0]);
-  abcg::glUniform4f(m_colorLoc, 1.0f, 1.0f, 1.0f, 1.0f);
+  abcg::glUniform4f(m_colorLoc, m_color.r, m_color.g, m_color.b, 1.0f);
   abcg::glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT,
                        nullptr);
 
@@ -163,4 +167,9 @@ void Ball::update(float deltaTime) {
 //const funcao nao modifica o objeto
 float Ball::getRadius() const {
   return 2*m_scale;
+}
+
+void Ball::changeColor() {
+  std::uniform_real_distribution<float> rd(0.0f, 1.0f);
+  m_color = glm::vec3(rd(m_randomEngine), rd(m_randomEngine), rd(m_randomEngine));
 }

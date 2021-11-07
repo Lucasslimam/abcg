@@ -200,7 +200,9 @@ void OpenGLWindow::update() {
   // Update LookAt camera
   m_camera.dolly(m_dollySpeed * deltaTime);
   m_camera.truck(m_truckSpeed * deltaTime);
-  m_camera.pan(m_panSpeed * deltaTime);
+  //m_camera.pan(m_panSpeed * deltaTime);
+  m_panSpeed = 0.25f;
+  m_camera.orbit(m_panSpeed*deltaTime);
 }
 
 void OpenGLWindow::checkCollision() {
@@ -209,6 +211,8 @@ void OpenGLWindow::checkCollision() {
     if (std::abs(m_ball.m_position[i]) + m_ball.getRadius() > m_box.getSideLength()/2.0f) {
       if (std::signbit(m_ball.m_position[i]) == std::signbit(m_ball.m_velocity[i])) {
         m_ball.m_velocity[i] *= -1.0f;
+        m_box.m_color = m_ball.m_color;
+        m_ball.changeColor();
       }
     }
   } 

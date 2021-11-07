@@ -48,3 +48,16 @@ void Camera::pan(float speed) {
 
   computeViewMatrix();
 }
+
+void Camera::orbit(float speed) {
+  glm::mat4 transform{glm::mat4(1.0f)};
+
+  // Rotate camera around the lookat
+  transform = glm::translate(transform, m_at);
+  transform = glm::rotate(transform, -speed, m_up);
+  transform = glm::translate(transform, -m_at);
+
+  m_eye = transform * glm::vec4(m_eye, 1.0f);
+
+  computeViewMatrix();
+}

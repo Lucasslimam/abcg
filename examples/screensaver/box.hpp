@@ -38,13 +38,14 @@ class Box {
   GLint m_colorLoc{};
   
   float m_angle{90.0f};
-  float m_scale{2.0f};
+  float m_scale{2.0f}; //2.0 para box
   glm::mat4 m_modelMatrix{};
   GLuint m_vao{};
   GLuint m_vbo{};
   GLuint m_ebo{};
 
   abcg::ElapsedTimer m_trailBlinkTimer;
+  glm::vec3 m_color{glm::vec3(1.0f)};
 
   glm::vec3 m_position{glm::vec3()};
   std::vector<Vertex> m_vertices;
