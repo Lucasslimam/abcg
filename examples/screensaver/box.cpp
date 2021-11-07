@@ -138,7 +138,7 @@ void Box::paintGL() {
   model = glm::translate(model, glm::vec3(0));
   model = glm::rotate(model, glm::radians(m_angle), glm::vec3(0, 1, 0));
   model = glm::scale(model, glm::vec3(2.0f));
-
+  
   abcg::glUniformMatrix4fv(m_modelMatrixLoc, 1, GL_FALSE, &model[0][0]);
   abcg::glUniform4f(m_colorLoc, m_color.r, m_color.g, m_color.b, 1.0f);
   abcg::glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT,
