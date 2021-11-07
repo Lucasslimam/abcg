@@ -196,8 +196,27 @@ void OpenGLWindow::update() {
   const float deltaTime{static_cast<float>(getDeltaTime())};
   m_ball.update(deltaTime);
   m_box.update(deltaTime);
+  checkCollision();
   // Update LookAt camera
   m_camera.dolly(m_dollySpeed * deltaTime);
   m_camera.truck(m_truckSpeed * deltaTime);
   m_camera.pan(m_panSpeed * deltaTime);
+}
+
+void OpenGLWindow::checkCollision() {
+  if (std::abs(m_ball.m_position.x) + m_ball.getRadius() > m_box.getSideLength()/2.0f) {
+    if (std::signbit(m_ball.m_position.x) == std::signbit(m_ball.m_velocity.x)) {
+      m_ball.m_velocity.x *= -1.0f;
+    }
+  }
+  if (std::abs(m_ball.m_position.y) + m_ball.getRadius() > m_box.getSideLength()/2.0f) {
+    if (std::signbit(m_ball.m_position.y) == std::signbit(m_ball.m_velocity.y)) {
+      m_ball.m_velocity.y *= -1.0f;
+    }
+  }
+  if (std::abs(m_ball.m_position.z) + m_ball.getRadius() > m_box.getSideLength()/2.0f) {
+    if (std::signbit(m_ball.m_position.z) == std::signbit(m_ball.m_velocity.z)) {
+      m_ball.m_velocity.z *= -1.0f;
+    }
+  }
 }

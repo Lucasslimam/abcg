@@ -127,16 +127,17 @@ void Box::initializeGL(GLuint program) {
 
 
 void Box::paintGL() {
-
+  abcg::glEnable(GL_CULL_FACE);
+  abcg::glCullFace(GL_BACK);
   abcg::glUseProgram(m_program);
   abcg::glBindVertexArray(m_vao);
   // Restart thruster blink timer every 100 ms
   if (m_trailBlinkTimer.elapsed() > 100.0 / 1000.0) m_trailBlinkTimer.restart();
 
   glm::mat4 model{1.0f};
-  model = glm::translate(model, glm::vec3(-3.5f, 0.0f, 0.0f));
+  model = glm::translate(model, glm::vec3(0));
   model = glm::rotate(model, glm::radians(m_angle), glm::vec3(0, 1, 0));
-  model = glm::scale(model, glm::vec3(4.0f));
+  model = glm::scale(model, glm::vec3(2.0f));
 
   abcg::glUniformMatrix4fv(m_modelMatrixLoc, 1, GL_FALSE, &model[0][0]);
   abcg::glUniform4f(m_colorLoc, 1.0f, 1.0f, 1.0f, 1.0f);
@@ -144,8 +145,9 @@ void Box::paintGL() {
                        nullptr);
 
   abcg::glBindVertexArray(0);
-
+ 
   abcg::glUseProgram(0);
+  abcg::glDisable(GL_CULL_FACE);
 }
 
 void Box::terminateGL() {
@@ -154,7 +156,10 @@ void Box::terminateGL() {
   abcg::glDeleteVertexArrays(1, &m_vao);
 }
 
-
 void Box::update(float deltaTime) {
-  m_angle += 45*deltaTime;
+  /*m_angle += 45*deltaTime;*/
+}
+
+float Box::getSideLength() const {
+  return m_scale*1.0f;
 }

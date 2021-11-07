@@ -25,6 +25,7 @@ class Ball {
   void terminateGL();
   void loadModelFromFile(std::string_view path);
   void update(float deltaTime);
+  float getRadius() const;
 
  private:
   friend OpenGLWindow;
@@ -36,6 +37,7 @@ class Ball {
   GLint m_colorLoc{};
 
   glm::mat4 m_modelMatrix = glm::mat4(1.0);
+  float m_scale{0.125};
 
   GLuint m_vao{};
   GLuint m_vbo{};
@@ -43,7 +45,7 @@ class Ball {
   GLuint m_vboColors{};
 
   glm::vec3 m_position{glm::vec3(0)};
-  glm::vec3 m_velocity{glm::vec3(1.0f, 1.0f, 0.0f)};
+  glm::vec3 m_velocity{glm::vec3(1.0f, 0.7f, 0.5f)};
   abcg::ElapsedTimer m_trailBlinkTimer;
 
   std::vector<Vertex> m_vertices;

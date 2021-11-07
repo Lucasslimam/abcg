@@ -138,7 +138,7 @@ void Ball::paintGL() {
   m_modelMatrix = glm::mat4(1.0f);
   m_modelMatrix = glm::translate(m_modelMatrix, m_position);
   m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(90.0f), glm::vec3(0, 1, 0));
-  m_modelMatrix = glm::scale(m_modelMatrix, glm::vec3(0.5f));
+  m_modelMatrix = glm::scale(m_modelMatrix, glm::vec3(0.125f));
 
   abcg::glUniformMatrix4fv(m_modelMatrixLoc, 1, GL_FALSE, &m_modelMatrix[0][0]);
   abcg::glUniform4f(m_colorLoc, 1.0f, 1.0f, 1.0f, 1.0f);
@@ -158,4 +158,9 @@ void Ball::terminateGL() {
 
 void Ball::update(float deltaTime) {
   m_position += m_velocity*deltaTime;
+}
+
+//const funcao nao modifica o objeto
+float Ball::getRadius() const {
+  return 2*m_scale;
 }

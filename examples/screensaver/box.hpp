@@ -26,6 +26,7 @@ class Box {
   void terminateGL();
   void loadModelFromFile(std::string_view path);
   void update(float deltaTime);
+  float getSideLength() const;
 
  private:
   friend OpenGLWindow;
@@ -37,6 +38,7 @@ class Box {
   GLint m_colorLoc{};
   
   float m_angle{90.0f};
+  float m_scale{2.0f};
   glm::mat4 m_modelMatrix{};
   GLuint m_vao{};
   GLuint m_vbo{};

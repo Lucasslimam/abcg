@@ -25,7 +25,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   void paintUI() override;
   void resizeGL(int width, int height) override;
   void terminateGL() override;
-
+  void checkCollision();
  private:
   GLuint m_VAO{};
   GLuint m_VBO{};
