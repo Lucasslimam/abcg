@@ -204,19 +204,12 @@ void OpenGLWindow::update() {
 }
 
 void OpenGLWindow::checkCollision() {
-  if (std::abs(m_ball.m_position.x) + m_ball.getRadius() > m_box.getSideLength()/2.0f) {
-    if (std::signbit(m_ball.m_position.x) == std::signbit(m_ball.m_velocity.x)) {
-      m_ball.m_velocity.x *= -1.0f;
+
+  for (int i = 0; i < 3; i++) {
+    if (std::abs(m_ball.m_position[i]) + m_ball.getRadius() > m_box.getSideLength()/2.0f) {
+      if (std::signbit(m_ball.m_position[i]) == std::signbit(m_ball.m_velocity[i])) {
+        m_ball.m_velocity[i] *= -1.0f;
+      }
     }
-  }
-  if (std::abs(m_ball.m_position.y) + m_ball.getRadius() > m_box.getSideLength()/2.0f) {
-    if (std::signbit(m_ball.m_position.y) == std::signbit(m_ball.m_velocity.y)) {
-      m_ball.m_velocity.y *= -1.0f;
-    }
-  }
-  if (std::abs(m_ball.m_position.z) + m_ball.getRadius() > m_box.getSideLength()/2.0f) {
-    if (std::signbit(m_ball.m_position.z) == std::signbit(m_ball.m_velocity.z)) {
-      m_ball.m_velocity.z *= -1.0f;
-    }
-  }
+  } 
 }
