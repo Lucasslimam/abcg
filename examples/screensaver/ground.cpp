@@ -49,8 +49,8 @@ void Ground::paintGL() {
       abcg::glUniformMatrix4fv(m_modelMatrixLoc, 1, GL_FALSE, &model[0][0]);
 
       // Set color (checkerboard pattern)
-      const float gray{(z + x) % 2 == 0 ? 1.0f : 0.5f};
-      abcg::glUniform4f(m_colorLoc, gray, gray, gray, 1.0f);
+      glm::vec3 chosenColor{(z + x) % 2 == 0 ? m_colorTileOne : m_colorTileTwo};
+      abcg::glUniform4f(m_colorLoc, chosenColor.r, chosenColor.g, chosenColor.b, 1.0f);
       abcg::glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     }
   }
@@ -58,6 +58,14 @@ void Ground::paintGL() {
 
   abcg::glUseProgram(0);
 
+}
+
+void Ground::setColorTileOne(glm::vec3 color) {
+  m_colorTileOne = glm::vec3(color);
+}
+
+void Ground::setColorTileTwo(glm::vec3 color) {
+  m_colorTileTwo = glm::vec3(color);
 }
 
 void Ground::terminateGL() {

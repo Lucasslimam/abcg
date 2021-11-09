@@ -212,7 +212,9 @@ void OpenGLWindow::checkCollision() {
       if (std::signbit(m_ball.m_position[i]) == std::signbit(m_ball.m_velocity[i])) {
         m_ball.m_velocity[i] *= -1.0f;
         m_box.m_color = m_ball.m_color;
+        m_ground.setColorTileOne(m_ball.m_color);
         m_ball.changeColor();
+        m_ground.setColorTileTwo(m_ball.m_color);
       }
     }
   } 
