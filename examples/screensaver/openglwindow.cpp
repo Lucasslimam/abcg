@@ -6,19 +6,8 @@
 
 #include <cppitertools/itertools.hpp>
 #include <glm/gtx/fast_trigonometry.hpp>
-#include <glm/gtx/hash.hpp>
 #include <unordered_map>
 
-// Explicit specialization of std::hash for Vertex
-namespace std {
-template <>
-struct hash<Vertex> {
-  size_t operator()(Vertex const& vertex) const noexcept {
-    const std::size_t h1{std::hash<glm::vec3>()(vertex.position)};
-    return h1;
-  }
-};
-}  // namespace std
 
 void OpenGLWindow::handleEvent(SDL_Event& ev) {
   if (ev.type == SDL_KEYDOWN) {
@@ -71,9 +60,6 @@ void OpenGLWindow::initializeGL() {
   loadModelFromFile(getAssetsPath() + "box.obj");
   m_box.m_vertices = std::vector<Vertex>(m_vertices);
   m_box.m_indices = std::vector<GLuint>(m_indices);
-
-  
-
 
   m_ball.initializeGL(m_program);
   m_box.initializeGL(m_program);
@@ -153,9 +139,6 @@ void OpenGLWindow::paintGL() {
       abcg::glGetUniformLocation(m_program, "viewMatrix")};
   const GLint projMatrixLoc{
       abcg::glGetUniformLocation(m_program, "projMatrix")};
-  const GLint modelMatrixLoc{
-      abcg::glGetUniformLocation(m_program, "modelMatrix")};
-  const GLint colorLoc{abcg::glGetUniformLocation(m_program, "color")};
 
   // Set uniform variables for viewMatrix and projMatrix
   // These matrices are used for every scene object
@@ -166,7 +149,9 @@ void OpenGLWindow::paintGL() {
 
   abcg::glBindVertexArray(m_VAO);
 
+  //Draw box
   m_box.paintGL();
+  //Draw ball
   m_ball.paintGL();
   // Draw ground
   m_ground.paintGL();
@@ -195,7 +180,6 @@ void OpenGLWindow::terminateGL() {
 void OpenGLWindow::update() {
   const float deltaTime{static_cast<float>(getDeltaTime())};
   m_ball.update(deltaTime);
-  m_box.update(deltaTime);
   checkCollision();
   // Update LookAt camera
   m_camera.dolly(m_dollySpeed * deltaTime);

@@ -2,21 +2,13 @@
 #define BALL_HPP_
 
 #include "abcg.hpp"
+#include "vertex.hpp"
 #include <vector>
 #include <random>
 
 class OpenGLWindow;
 struct Vertex;
 
-
-/*
-struct Vertex {
-  glm::vec3 position;
-
-  bool operator==(const Vertex& other) const {
-    return position == other.position;
-  }
-};*/
 
 class Ball {
  public:

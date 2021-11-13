@@ -8,14 +8,8 @@
 #include "ground.hpp"
 #include "ball.hpp"
 #include "box.hpp"
+#include "vertex.hpp"
 
-struct Vertex {
-  glm::vec3 position;
-
-  bool operator==(const Vertex& other) const {
-    return position == other.position;
-  }
-};
 
 class OpenGLWindow : public abcg::OpenGLWindow {
  protected:

@@ -2,20 +2,13 @@
 #define BOX_HPP_
 
 #include "abcg.hpp"
+#include "vertex.hpp"
 #include <vector>
 
 
 class OpenGLWindow;
 struct Vertex;
 
-/*
-struct Vertex { 
-  glm::vec3 position;
-
-  bool operator==(const Vertex& other) const {
-    return position == other.position;
-  }
-};*/
 
 class Box {
  public:
@@ -25,7 +18,6 @@ class Box {
   void paintGL();
   void terminateGL();
   void loadModelFromFile(std::string_view path);
-  void update(float deltaTime);
   float getSideLength() const;
 
  private:

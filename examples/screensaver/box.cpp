@@ -11,20 +11,9 @@
 
 #include <cppitertools/itertools.hpp>
 #include <glm/gtx/fast_trigonometry.hpp>
-#include <glm/gtx/hash.hpp>
 #include <unordered_map>
 
 #include "openglwindow.hpp"
-
-namespace std {
-template <>
-struct hash<Vertex> {
-  size_t operator()(Vertex const& vertex) const noexcept {
-    const std::size_t h1{std::hash<glm::vec3>()(vertex.position)};
-    return h1;
-  }
-};
-}
 
 void Box::loadModelFromFile(std::string_view path) {
   tinyobj::ObjReader reader;
@@ -154,10 +143,6 @@ void Box::terminateGL() {
   abcg::glDeleteBuffers(1, &m_vbo);
   abcg::glDeleteBuffers(1, &m_ebo);
   abcg::glDeleteVertexArrays(1, &m_vao);
-}
-
-void Box::update(float deltaTime) {
-  /*m_angle += 45*deltaTime;*/
 }
 
 float Box::getSideLength() const {

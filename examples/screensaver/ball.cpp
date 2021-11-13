@@ -16,16 +16,6 @@
 
 #include "openglwindow.hpp"
 
-namespace std {
-template <>
-struct hash<Vertex> {
-  size_t operator()(Vertex const& vertex) const noexcept {
-    const std::size_t h1{std::hash<glm::vec3>()(vertex.position)};
-    return h1;
-  }
-};
-}
-
 
 void Ball::loadModelFromFile(std::string_view path) {
   tinyobj::ObjReader reader;
