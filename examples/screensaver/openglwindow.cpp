@@ -149,14 +149,10 @@ void OpenGLWindow::update() {
   const float deltaTime{static_cast<float>(getDeltaTime())};
   m_ball.update(deltaTime);
   checkCollision();
-  // Update LookAt camera
-  m_camera.dolly(m_dollySpeed * deltaTime);
-  m_camera.truck(m_truckSpeed * deltaTime);
-  //m_camera.pan(m_panSpeed * deltaTime);
-  m_panSpeed = 0.25f;
-  m_camera.orbit(m_panSpeed*deltaTime);
+  m_camera.orbit(0.25f*deltaTime);
 }
 
+//Function to verify collision, also responsible for the dynamic proposed with the colors.
 void OpenGLWindow::checkCollision() {
 
   for (int i = 0; i < 3; i++) {

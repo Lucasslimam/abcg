@@ -10,11 +10,7 @@ class Camera {
  public:
   void computeViewMatrix();
   void computeProjectionMatrix(int width, int height);
-
-  void dolly(float speed);
-  void truck(float speed);
-  void pan(float speed);
-  void orbit(float speed);
+  void orbit(float angle);
 
  private:
   friend OpenGLWindow;
