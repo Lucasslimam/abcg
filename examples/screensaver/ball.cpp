@@ -131,7 +131,7 @@ void Ball::paintGL() {
   m_modelMatrix = glm::mat4(1.0f);
   m_modelMatrix = glm::translate(m_modelMatrix, m_position);
   m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(90.0f), glm::vec3(0, 1, 0));
-  m_modelMatrix = glm::scale(m_modelMatrix, glm::vec3(0.125f));
+  m_modelMatrix = glm::scale(m_modelMatrix, glm::vec3(0.f));
   
 
   abcg::glUniformMatrix4fv(m_modelMatrixLoc, 1, GL_FALSE, &m_modelMatrix[0][0]);
