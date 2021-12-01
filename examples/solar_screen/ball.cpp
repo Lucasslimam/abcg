@@ -25,15 +25,14 @@ void Ball::generateSphere() {
   m_indices.clear();
 
   Vertex vertex{};
-  float xy;                           // vertex position
-  float lengthInv = 1.0f / m_radius;    // vertex normal
-
+  float xy;
+  float lengthInv = 1.0f / m_radius; 
   float sectorStep = 2 * PI / m_sectorCount;
   float stackStep = PI / m_stackCount;
   float sectorAngle, stackAngle;
 
   for(int i = 0; i <= m_stackCount; ++i) { 
-    stackAngle = PI / 2 - i * stackStep;           // starting from pi/2 to -pi/2
+    stackAngle = PI / 2 - i * stackStep;                 // starting from pi/2 to -pi/2
     xy = m_radius * std::cos(stackAngle);                // r * cos(u)
     vertex.position.z = m_radius * std::sin(stackAngle); // r * sin(u)
          
@@ -141,7 +140,17 @@ void Ball::initializeGL(GLuint program) {
   m_viewMatrixLoc = abcg::glGetUniformLocation(m_program, "viewMatrix");
   m_projMatrixLoc = abcg::glGetUniformLocation(m_program, "projMatrix");
   m_modelMatrixLoc = abcg::glGetUniformLocation(m_program, "modelMatrix");
+  m_normalMatrixLoc = abcg::glGetUniformLocation(m_program, "normalMatrix");
   m_colorLoc = abcg::glGetUniformLocation(m_program, "color");
+  IaLoc = abcg::glGetUniformLocation(program, "Ia");
+  IdLoc = abcg::glGetUniformLocation(program, "Id");
+  IsLoc = abcg::glGetUniformLocation(program, "Is");
+  KaLoc = abcg::glGetUniformLocation(program, "Ka");
+  KdLoc = abcg::glGetUniformLocation(program, "Kd");
+  KsLoc = abcg::glGetUniformLocation(program, "Ks");
+  lightDirLoc = abcg::glGetUniformLocation(program, "lightDirWorldSpace");
+  shininessLoc = abcg::glGetUniformLocation(program, "shininess");
+
 
   //Declarar vetor positions
 
@@ -167,18 +176,24 @@ void Ball::initializeGL(GLuint program) {
   abcg::glBindVertexArray(m_vao);
 
   abcg::glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-  const GLint positionAttribute{
-      abcg::glGetAttribLocation(m_program, "inPosition")};
+  const GLint positionAttribute{abcg::glGetAttribLocation(m_program, "inPosition")};
   abcg::glEnableVertexAttribArray(positionAttribute);
-  abcg::glVertexAttribPointer(positionAttribute, 3, GL_FLOAT, GL_FALSE,
-                              sizeof(Vertex), nullptr);
-  abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
+  abcg::glVertexAttribPointer(positionAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), nullptr);
 
+  /*duvida fica aqui mesmo?*/
+  GLsizei normalOffset{sizeof(glm::vec3)};
+  const GLint normalAttribute{abcg::glGetAttribLocation(m_program, "inNormal")};
+  abcg::glEnableVertexAttribArray(normalAttribute);
+  abcg::glVertexAttribPointer(normalAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 
+                              reinterpret_cast<void*>(normalOffset));
+
+  abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
   abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+  /*falta a parte do normal*/
+  
   // End of binding to current VAO
   abcg::glBindVertexArray(0);
 }
-
 
 void Ball::paintGL() {
 
@@ -193,11 +208,20 @@ void Ball::paintGL() {
   m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(90.0f), glm::vec3(0, 1, 0));
   m_modelMatrix = glm::scale(m_modelMatrix, m_scale);
   
+  abcg::glUniform4fv(lightDirLoc, 1, &m_lightDir.x);
+  abcg::glUniform1f(shininessLoc, m_shininess);
+  abcg::glUniform4fv(IaLoc, 1, &m_Ia.x);
+  abcg::glUniform4fv(IdLoc, 1, &m_Id.x);
+  abcg::glUniform4fv(IsLoc, 1, &m_Is.x);
+  abcg::glUniform4fv(KaLoc, 1, &m_Ka.x);
+  abcg::glUniform4fv(KdLoc, 1, &m_Kd.x);
+  abcg::glUniform4fv(KsLoc, 1, &m_Ks.x);
 
   abcg::glUniformMatrix4fv(m_modelMatrixLoc, 1, GL_FALSE, &m_modelMatrix[0][0]);
+
+
   abcg::glUniform4f(m_colorLoc, m_color.r, m_color.g, m_color.b, 1.0f);
-  abcg::glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT,
-                       nullptr);
+  abcg::glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, nullptr);
 
   abcg::glBindVertexArray(0);
 

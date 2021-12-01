@@ -7,6 +7,7 @@
 #include <cppitertools/itertools.hpp>
 #include <glm/gtx/fast_trigonometry.hpp>
 #include <unordered_map>
+#include <glm/gtc/matrix_inverse.hpp>
 
 void OpenGLWindow::initializeGL() {
   abcg::glClearColor(0, 0, 0, 1);
@@ -15,8 +16,11 @@ void OpenGLWindow::initializeGL() {
   abcg::glEnable(GL_DEPTH_TEST);
 
   // Create program
-  m_program = createProgramFromFile(getAssetsPath() + "lookat.vert",
-                                    getAssetsPath() + "lookat.frag");
+  m_program = createProgramFromFile(getAssetsPath() + "ball.vert",
+                                    getAssetsPath() + "ball.frag");
+                                  
+  /*m_sphere_program = createProgramFromFile(getAssetsPath() + "ballVert.glsl",
+                                  getAssetsPath() + "ballFrag.glsl");*/
 
   m_ground.initializeGL(m_program);
 
