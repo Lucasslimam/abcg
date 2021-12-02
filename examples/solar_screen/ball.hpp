@@ -14,7 +14,7 @@ class Ball {
  public:
   virtual ~Ball() = default;
 
-  void generateSphere();
+  void generateSphere(glm::vec3 position, float radius);
   void initializeGL(GLuint program);
   void paintGL();
   void terminateGL();
@@ -38,7 +38,8 @@ class Ball {
 
   glm::mat4 m_modelMatrix = glm::mat4(1.0);
   
-  float m_radius{0.25};
+  //float m_radius{0.25};
+  float m_radius{};
 
   int m_stackCount{16};
   int m_sectorCount{16};
@@ -48,7 +49,8 @@ class Ball {
   GLuint m_ebo{};
 
   glm::vec3 m_scale{1.0f};
-  glm::vec3 m_position{glm::vec3(0)};
+  //glm::vec3 m_position{glm::vec3(0)};
+  glm::vec3 m_position{};
   glm::vec3 m_velocity{glm::vec3(1.0f, 0.7f, 0.5f)};
   glm::vec3 m_color{glm::vec3(1.0f)};
 

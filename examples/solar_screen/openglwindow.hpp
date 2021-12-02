@@ -24,7 +24,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   GLuint m_VBO{};
   GLuint m_EBO{};
   GLuint m_program{};
-  GLuint m_sphere_program{};
+  GLuint m_box_program{};
 
   int m_viewportWidth{};
   int m_viewportHeight{};
@@ -34,6 +34,8 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   Ground m_ground;
   Box m_box;
   Ball m_ball;
+  Ball m_sun;
+  Ball m_moon;
 
 
   glm::mat4 m_modelMatrix{1.0f};

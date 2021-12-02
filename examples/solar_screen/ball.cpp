@@ -19,8 +19,11 @@
 
 const float PI = 3.1415926535;
 
-void Ball::generateSphere() {
+void Ball::generateSphere(glm::vec3 position, float radius) {
   // clear memory of prev arrays
+  m_position = position;
+  m_radius = radius; 
+
   m_vertices.clear();
   m_indices.clear();
 

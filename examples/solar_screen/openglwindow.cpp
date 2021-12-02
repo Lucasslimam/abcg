@@ -19,20 +19,37 @@ void OpenGLWindow::initializeGL() {
   m_program = createProgramFromFile(getAssetsPath() + "ball.vert",
                                     getAssetsPath() + "ball.frag");
                                   
-  /*m_sphere_program = createProgramFromFile(getAssetsPath() + "ballVert.glsl",
-                                  getAssetsPath() + "ballFrag.glsl");*/
+  m_box_program = createProgramFromFile(getAssetsPath() + "lookat.vert",
+                                  getAssetsPath() + "lookat.frag");
 
   m_ground.initializeGL(m_program);
 
   // Load model
-  m_ball.generateSphere();
+  glm::vec3 m_ball_position = glm::vec3(0.0f, 0.0f, 1.0f);
+  float m_ball_radius = 0.25f;
+  m_ball.generateSphere(m_ball_position, m_ball_radius);
+  m_ball.m_velocity = glm::vec3(0.0f);
+  
+
+  m_sun.m_velocity = glm::vec3(0.0f);
+  glm::vec3 m_sun_position = glm::vec3(3.5f, 0.0f, 1.0f);
+  float m_sun_radius = 0.5f;
+  m_sun.generateSphere(m_sun_position, m_sun_radius);
+  
+  m_moon.m_velocity = glm::vec3(0.0f);
+  glm::vec3 m_moon_position = glm::vec3(0.0f, 0.5f, 1.0f);
+  float m_moon_radius = 0.125f;
+  m_moon.generateSphere(m_moon_position, m_moon_radius);
+  
 
   loadModelFromFile(getAssetsPath() + "box.obj");
   m_box.m_vertices = std::vector<Vertex>(m_vertices);
   m_box.m_indices = std::vector<GLuint>(m_indices);
 
   m_ball.initializeGL(m_program);
-  m_box.initializeGL(m_program);
+  m_sun.initializeGL(m_program);
+  m_moon.initializeGL(m_program);
+  m_box.initializeGL(m_box_program);
   
   resizeGL(getWindowSettings().width, getWindowSettings().height);
 }
@@ -123,6 +140,8 @@ void OpenGLWindow::paintGL() {
   m_box.paintGL();
   //Draw ball
   m_ball.paintGL();
+  m_sun.paintGL();
+  m_moon.paintGL();
   // Draw ground
   m_ground.paintGL();
 
@@ -150,6 +169,8 @@ void OpenGLWindow::terminateGL() {
 void OpenGLWindow::update() {
   const float deltaTime{static_cast<float>(getDeltaTime())};
   m_ball.update(deltaTime);
+  m_sun.update(deltaTime);
+  m_moon.update(deltaTime);
   checkCollision();
   m_camera.orbit(0.25f*deltaTime);
 }

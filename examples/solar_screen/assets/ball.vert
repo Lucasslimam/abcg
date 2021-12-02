@@ -10,7 +10,7 @@ uniform mat4 projMatrix;
 uniform mat3 normalMatrix;
 
 // Light properties
-uniform vec4 lightDirWorldSpace;
+uniform vec4 lightDirWorldSpace; /*trocar por light position world space*/
 uniform vec4 Ia, Id, Is;
 
 // Material properties
@@ -47,7 +47,12 @@ void main() {
   mat3 normalMatrix = inverse(transpose(mat3(viewMatrix*modelMatrix)));
   vec3 P = (viewMatrix * modelMatrix * vec4(inPosition, 1.0)).xyz;
   vec3 N = normalMatrix * inNormal;
-  vec3 L = -(viewMatrix * lightDirWorldSpace).xyz;
+  /*calcular LightDirworldSpace (vec3 ou vec4), depois normalize(lightPosition - inPosition*MatrixModel)
+  vec3 worldPosition = (modelMatrix*vec4(inPosition, 1.0)).xyz;
+  vec3 lightDirection = normalize(lightPosition - worldPosition);
+  vec3 L = -(viewMatrix * lightDirection).xyz
+  */
+  vec3 L = -(viewMatrix * lightDirWorldSpace).xyz; /*calcular Light*/
   vec3 V = -P;
 
   fragColor = Phong(N, L, V);

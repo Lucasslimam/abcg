@@ -13,6 +13,7 @@ void Camera::computeViewMatrix() {
 }
 
 void Camera::orbit(float angle) {
+  
   glm::mat4 transform{glm::mat4(1.0f)};
 
   // Rotate camera around the lookat
