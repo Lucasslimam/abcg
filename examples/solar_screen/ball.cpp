@@ -17,8 +17,6 @@
 #include "openglwindow.hpp"
 
 
-const float PI = 3.1415926535;
-
 void Ball::generateSphere(glm::vec3 position, float radius) {
   // clear memory of prev arrays
   m_position = position;
@@ -26,6 +24,7 @@ void Ball::generateSphere(glm::vec3 position, float radius) {
 
   m_vertices.clear();
   m_indices.clear();
+
 
   Vertex vertex{};
   float xy;
@@ -206,11 +205,8 @@ void Ball::paintGL() {
   // Restart thruster blink timer every 100 ms
   if (m_trailBlinkTimer.elapsed() > 100.0 / 1000.0) m_trailBlinkTimer.restart();
 
-  m_modelMatrix = glm::mat4(1.0f);
-  m_modelMatrix = glm::translate(m_modelMatrix, m_position);
-  m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(90.0f), glm::vec3(0, 1, 0));
-  m_modelMatrix = glm::scale(m_modelMatrix, m_scale);
-  
+  glm::mat4 modelMatrix = calcWorldMatrix();
+
   abcg::glUniform4fv(lightDirLoc, 1, &m_lightDir.x);
   abcg::glUniform1f(shininessLoc, m_shininess);
   abcg::glUniform4fv(IaLoc, 1, &m_Ia.x);
@@ -220,7 +216,8 @@ void Ball::paintGL() {
   abcg::glUniform4fv(KdLoc, 1, &m_Kd.x);
   abcg::glUniform4fv(KsLoc, 1, &m_Ks.x);
 
-  abcg::glUniformMatrix4fv(m_modelMatrixLoc, 1, GL_FALSE, &m_modelMatrix[0][0]);
+
+  abcg::glUniformMatrix4fv(m_modelMatrixLoc, 1, GL_FALSE, &modelMatrix[0][0]);
 
 
   abcg::glUniform4f(m_colorLoc, m_color.r, m_color.g, m_color.b, 1.0f);
@@ -237,8 +234,16 @@ void Ball::terminateGL() {
   abcg::glDeleteVertexArrays(1, &m_vao);
 }
 
+
 void Ball::update(float deltaTime) {
-  m_position += m_velocity*deltaTime;
+  glm::vec3 angle = m_angularVelocity*deltaTime;
+
+  glm::mat4 transform{glm::mat4(1.0f)};
+  transform = glm::rotate(transform, -angle.y, glm::vec3(0.0f, 1.0f, 0.0f));
+  transform = glm::rotate(transform, -angle.x, glm::vec3(1.0f, 0.0f, 0.0f));
+  transform = glm::rotate(transform, -angle.z, glm::vec3(0.0f, 0.0f, 1.0f));
+
+  m_position = transform * glm::vec4(m_position, 1.0f); 
 }
 
 //const funcao nao modifica o objeto
@@ -249,4 +254,20 @@ float Ball::getRadius() const {
 void Ball::changeColor() {
   std::uniform_real_distribution<float> rd(0.0f, 1.0f);
   m_color = glm::vec3(rd(m_randomEngine), rd(m_randomEngine), rd(m_randomEngine));
+}
+
+glm::mat4 Ball::calcLocalMatrix() {
+  glm::mat4 localMatrix = glm::mat4(1.0f);
+  localMatrix = glm::translate(localMatrix, m_position);
+  localMatrix = glm::rotate(localMatrix, glm::radians(90.0f), glm::vec3(0, 1, 0));
+  localMatrix = glm::scale(localMatrix, m_scale);
+  return localMatrix;
+}
+
+glm::mat4 Ball::calcWorldMatrix() {
+  glm::mat4 world = calcLocalMatrix();
+  for (Ball* ball = m_parent; ball; ball=ball->m_parent) {
+    world = ball->calcLocalMatrix()*world;
+  }
+  return world;
 }

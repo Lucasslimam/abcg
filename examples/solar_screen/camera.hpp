@@ -15,7 +15,7 @@ class Camera {
  private:
   friend OpenGLWindow;
 
-  glm::vec3 m_eye{glm::vec3(2.5f, 0.8f, 2.5f)};  // Camera position
+  glm::vec3 m_eye{glm::vec3(-4.0f, 0.8f, 4.0f)};  // Camera position
   glm::vec3 m_at{glm::vec3(0.0f, 0.0f, 0.0f)};   // Look-at point
   glm::vec3 m_up{glm::vec3(0.0f, 1.0f, 0.0f)};   // "up" direction
 

@@ -25,22 +25,28 @@ void OpenGLWindow::initializeGL() {
   m_ground.initializeGL(m_program);
 
   // Load model
-  glm::vec3 m_ball_position = glm::vec3(0.0f, 0.0f, 1.0f);
+
+  m_sun.m_velocity = glm::vec3(0.0f);
+  glm::vec3 m_sun_position = glm::vec3(0.0f, 0.0f, 0.0f);
+  float m_sun_radius = 0.5f;
+  m_sun.generateSphere(m_sun_position, m_sun_radius);
+  m_sun.m_Ka = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
+  
+
+  glm::vec3 m_ball_position = glm::vec3(3.5f, 0.0f, 0.0f);
   float m_ball_radius = 0.25f;
   m_ball.generateSphere(m_ball_position, m_ball_radius);
   m_ball.m_velocity = glm::vec3(0.0f);
+  m_ball.m_parent = &m_sun;
+  m_ball.m_angularVelocity = glm::vec3(0.0f, PI/2, 0.0f);
   
 
-  m_sun.m_velocity = glm::vec3(0.0f);
-  glm::vec3 m_sun_position = glm::vec3(3.5f, 0.0f, 1.0f);
-  float m_sun_radius = 0.5f;
-  m_sun.generateSphere(m_sun_position, m_sun_radius);
-  
   m_moon.m_velocity = glm::vec3(0.0f);
-  glm::vec3 m_moon_position = glm::vec3(0.0f, 0.5f, 1.0f);
+  glm::vec3 m_moon_position = glm::vec3(0.5f, 0.0f, 0.0f);
   float m_moon_radius = 0.125f;
   m_moon.generateSphere(m_moon_position, m_moon_radius);
-  
+  m_moon.m_parent = &m_ball;
+  m_moon.m_angularVelocity = glm::vec3(0.2f, 2*PI, 0.2f);
 
   loadModelFromFile(getAssetsPath() + "box.obj");
   m_box.m_vertices = std::vector<Vertex>(m_vertices);
@@ -50,7 +56,6 @@ void OpenGLWindow::initializeGL() {
   m_sun.initializeGL(m_program);
   m_moon.initializeGL(m_program);
   m_box.initializeGL(m_box_program);
-  
   resizeGL(getWindowSettings().width, getWindowSettings().height);
 }
 
@@ -137,7 +142,7 @@ void OpenGLWindow::paintGL() {
   abcg::glBindVertexArray(m_VAO);
 
   //Draw box
-  m_box.paintGL();
+  //m_box.paintGL();
   //Draw ball
   m_ball.paintGL();
   m_sun.paintGL();
@@ -172,7 +177,8 @@ void OpenGLWindow::update() {
   m_sun.update(deltaTime);
   m_moon.update(deltaTime);
   checkCollision();
-  m_camera.orbit(0.25f*deltaTime);
+  m_camera.computeViewMatrix();
+  //m_camera.orbit(0.25f*deltaTime);
 }
 
 //Function to verify collision, also responsible for the dynamic proposed with the colors.

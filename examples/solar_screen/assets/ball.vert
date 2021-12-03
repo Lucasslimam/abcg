@@ -6,56 +6,28 @@ layout(location = 1) in vec3 inNormal;
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projMatrix;
-/*Dar um jeito de adicionar ela*/
-uniform mat3 normalMatrix;
+//uniform mat3 normalMatrix;
 
-// Light properties
-uniform vec4 lightDirWorldSpace; /*trocar por light position world space*/
-uniform vec4 Ia, Id, Is;
+uniform vec4 lightDirWorldSpace;
 
-// Material properties
-uniform vec4 Ka, Kd, Ks;
-uniform float shininess;
-
-out vec4 fragColor;
-
-vec4 Phong(vec3 N, vec3 L, vec3 V) {
-  N = normalize(N);
-  L = normalize(L);
-
-  // Compute lambertian term
-  float lambertian = max(dot(N, L), 0.0);
-
-  // Compute specular term
-  float specular = 0.0;
-  if (lambertian > 0.0) {
-    // vec3 R = normalize(2.0 * dot(N, L) * N - L);
-    vec3 R = reflect(-L, N);
-    V = normalize(V);
-    float angle = max(dot(R, V), 0.0);
-    specular = pow(angle, shininess);
-  }
-
-  vec4 diffuseColor = Kd * Id * lambertian;
-  vec4 specularColor = Ks * Is * specular;
-  vec4 ambientColor = Ka * Ia;
-
-  return ambientColor + diffuseColor + specularColor;
-}
+out vec3 fragV;
+out vec3 fragL;
+out vec3 fragN;
 
 void main() {
+  vec3 lightPosition = vec3(0.0, 0.0, 0.0);
+  vec3 worldPosition = (modelMatrix*vec4(inPosition, 1.0)).xyz;
+  vec3 lightDirection = normalize(lightPosition - worldPosition);
+  //vec3 L = -(viewMatrix * vec4(lightDirection, 1.0)).xyz;
+  vec3 L = lightDirection;
   mat3 normalMatrix = inverse(transpose(mat3(viewMatrix*modelMatrix)));
   vec3 P = (viewMatrix * modelMatrix * vec4(inPosition, 1.0)).xyz;
   vec3 N = normalMatrix * inNormal;
-  /*calcular LightDirworldSpace (vec3 ou vec4), depois normalize(lightPosition - inPosition*MatrixModel)
-  vec3 worldPosition = (modelMatrix*vec4(inPosition, 1.0)).xyz;
-  vec3 lightDirection = normalize(lightPosition - worldPosition);
-  vec3 L = -(viewMatrix * lightDirection).xyz
-  */
-  vec3 L = -(viewMatrix * lightDirWorldSpace).xyz; /*calcular Light*/
-  vec3 V = -P;
+  //vec3 L = -(viewMatrix * lightDirWorldSpace).xyz;
 
-  fragColor = Phong(N, L, V);
+  fragL = L;
+  fragV = -P;
+  fragN = N;
 
   gl_Position = projMatrix * vec4(P, 1.0);
 }

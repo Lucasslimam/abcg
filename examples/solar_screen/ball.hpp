@@ -9,6 +9,7 @@
 class OpenGLWindow;
 struct Vertex;
 
+const float PI = 3.1415926535;
 
 class Ball {
  public:
@@ -22,9 +23,13 @@ class Ball {
   void update(float deltaTime);
   float getRadius() const;
   void changeColor();
+  glm::mat4 calcWorldMatrix();
+  glm::mat4 calcLocalMatrix();
 
  private:
   friend OpenGLWindow;
+
+  Ball* m_parent{NULL};
 
   GLuint m_program{};
   GLint m_viewMatrixLoc{};
@@ -35,8 +40,6 @@ class Ball {
   GLint IaLoc, IdLoc, IsLoc;
   GLint KaLoc, KdLoc, KsLoc;
   GLint shininessLoc, lightDirLoc;
-
-  glm::mat4 m_modelMatrix = glm::mat4(1.0);
   
   //float m_radius{0.25};
   float m_radius{};
@@ -49,9 +52,11 @@ class Ball {
   GLuint m_ebo{};
 
   glm::vec3 m_scale{1.0f};
-  //glm::vec3 m_position{glm::vec3(0)};
+  glm::vec3 m_rotation{0.0f}; /*rotacao no proprio eixo*/
   glm::vec3 m_position{};
   glm::vec3 m_velocity{glm::vec3(1.0f, 0.7f, 0.5f)};
+  glm::vec3 m_angularVelocity{0.0f};
+
   glm::vec3 m_color{glm::vec3(1.0f)};
 
   
@@ -62,14 +67,12 @@ class Ball {
   std::vector<GLuint> m_indices;
 
   glm::vec4 m_lightDir{-1.0f, -1.0f, -1.0f, 0.0f};
-  glm::vec4 m_Ia{1.0f, 1.0f, 1.0f, 1.0f};
-  glm::vec4 m_Id{1.0f, 1.0f, 1.0f, 1.0f};
-  glm::vec4 m_Is{1.0f, 1.0f, 1.0f, 1.0f};
+  glm::vec4 m_Ia{1.0f, 1.0f, 0.0f, 1.0f};
+  glm::vec4 m_Id{1.0f, 1.0f, 0.0f, 1.0f};
+  glm::vec4 m_Is{1.0f, 1.0f, 0.0f, 1.0f};
   glm::vec4 m_Ka{0.1f, 0.1f, 0.1f, 1.0f};
   glm::vec4 m_Kd{0.7f, 0.7f, 0.7f, 1.0f};
   glm::vec4 m_Ks{1.0f, 1.0f, 1.0f, 1.0f};
   float m_shininess{25.0f};
-
-
 };
 #endif
