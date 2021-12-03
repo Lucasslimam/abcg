@@ -6,7 +6,7 @@
 #include "abcg.hpp"
 #include "camera.hpp"
 #include "ground.hpp"
-#include "ball.hpp"
+#include "astro.hpp"
 #include "box.hpp"
 #include "vertex.hpp"
 
@@ -33,9 +33,9 @@ class OpenGLWindow : public abcg::OpenGLWindow {
 
   Ground m_ground;
   Box m_box;
-  Ball m_ball;
-  Ball m_sun;
-  Ball m_moon;
+  Astro m_earth;
+  Astro m_sun;
+  Astro m_moon;
 
 
   glm::mat4 m_modelMatrix{1.0f};

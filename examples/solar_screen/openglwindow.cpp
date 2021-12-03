@@ -33,26 +33,26 @@ void OpenGLWindow::initializeGL() {
   m_sun.m_Ka = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
   
 
-  glm::vec3 m_ball_position = glm::vec3(3.5f, 0.0f, 0.0f);
-  float m_ball_radius = 0.25f;
-  m_ball.generateSphere(m_ball_position, m_ball_radius);
-  m_ball.m_velocity = glm::vec3(0.0f);
-  m_ball.m_parent = &m_sun;
-  m_ball.m_angularVelocity = glm::vec3(0.0f, PI/2, 0.0f);
+  glm::vec3 m_earth_position = glm::vec3(3.5f, 0.0f, 0.0f);
+  float m_earth_radius = 0.25f;
+  m_earth.generateSphere(m_earth_position, m_earth_radius);
+  m_earth.m_velocity = glm::vec3(0.0f);
+  m_earth.m_parent = &m_sun;
+  m_earth.m_angularVelocity = glm::vec3(0.0f, PI/2, 0.0f);
   
 
   m_moon.m_velocity = glm::vec3(0.0f);
   glm::vec3 m_moon_position = glm::vec3(0.5f, 0.0f, 0.0f);
   float m_moon_radius = 0.125f;
   m_moon.generateSphere(m_moon_position, m_moon_radius);
-  m_moon.m_parent = &m_ball;
+  m_moon.m_parent = &m_earth;
   m_moon.m_angularVelocity = glm::vec3(0.2f, 2*PI, 0.2f);
 
   loadModelFromFile(getAssetsPath() + "box.obj");
   m_box.m_vertices = std::vector<Vertex>(m_vertices);
   m_box.m_indices = std::vector<GLuint>(m_indices);
 
-  m_ball.initializeGL(m_program);
+  m_earth.initializeGL(m_program);
   m_sun.initializeGL(m_program);
   m_moon.initializeGL(m_program);
   m_box.initializeGL(m_box_program);
@@ -144,7 +144,7 @@ void OpenGLWindow::paintGL() {
   //Draw box
   //m_box.paintGL();
   //Draw ball
-  m_ball.paintGL();
+  m_earth.paintGL();
   m_sun.paintGL();
   m_moon.paintGL();
   // Draw ground
@@ -173,7 +173,7 @@ void OpenGLWindow::terminateGL() {
 
 void OpenGLWindow::update() {
   const float deltaTime{static_cast<float>(getDeltaTime())};
-  m_ball.update(deltaTime);
+  m_earth.update(deltaTime);
   m_sun.update(deltaTime);
   m_moon.update(deltaTime);
   checkCollision();
@@ -185,13 +185,13 @@ void OpenGLWindow::update() {
 void OpenGLWindow::checkCollision() {
 
   for (int i = 0; i < 3; i++) {
-    if (std::abs(m_ball.m_position[i]) + m_ball.getRadius() > m_box.getSideLength()/2.0f) {
-      if (std::signbit(m_ball.m_position[i]) == std::signbit(m_ball.m_velocity[i])) {
-        m_ball.m_velocity[i] *= -1.0f;
-        m_box.m_color = m_ball.m_color;
-        m_ground.setColorTileOne(m_ball.m_color);
-        m_ball.changeColor();
-        m_ground.setColorTileTwo(m_ball.m_color);
+    if (std::abs(m_earth.m_position[i]) + m_earth.getRadius() > m_box.getSideLength()/2.0f) {
+      if (std::signbit(m_earth.m_position[i]) == std::signbit(m_earth.m_velocity[i])) {
+        m_earth.m_velocity[i] *= -1.0f;
+        m_box.m_color = m_earth.m_color;
+        m_ground.setColorTileOne(m_earth.m_color);
+        m_earth.changeColor();
+        m_ground.setColorTileTwo(m_earth.m_color);
       }
     }
   } 

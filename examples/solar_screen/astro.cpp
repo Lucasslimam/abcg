@@ -1,4 +1,4 @@
-#include "ball.hpp"
+#include "astro.hpp"
 #include <vector>
 #include <glm/gtx/fast_trigonometry.hpp>
 #include <glm/gtx/rotate_vector.hpp>
@@ -17,7 +17,7 @@
 #include "openglwindow.hpp"
 
 
-void Ball::generateSphere(glm::vec3 position, float radius) {
+void Astro::generateSphere(glm::vec3 position, float radius) {
   // clear memory of prev arrays
   m_position = position;
   m_radius = radius; 
@@ -78,7 +78,7 @@ void Ball::generateSphere(glm::vec3 position, float radius) {
   }
 }
 
-void Ball::loadModelFromFile(std::string_view path) {
+void Astro::loadModelFromFile(std::string_view path) {
   tinyobj::ObjReader reader;
 
   if (!reader.ParseFromFile(path.data())) {
@@ -132,7 +132,7 @@ void Ball::loadModelFromFile(std::string_view path) {
   }
 }
 
-void Ball::initializeGL(GLuint program) {
+void Astro::initializeGL(GLuint program) {
   terminateGL();
 
   auto seed{std::chrono::steady_clock::now().time_since_epoch().count()};
@@ -197,7 +197,7 @@ void Ball::initializeGL(GLuint program) {
   abcg::glBindVertexArray(0);
 }
 
-void Ball::paintGL() {
+void Astro::paintGL() {
 
   abcg::glUseProgram(m_program);
 
@@ -228,14 +228,14 @@ void Ball::paintGL() {
   abcg::glUseProgram(0);
 }
 
-void Ball::terminateGL() {
+void Astro::terminateGL() {
   abcg::glDeleteBuffers(1, &m_vbo);
   abcg::glDeleteBuffers(1, &m_ebo);
   abcg::glDeleteVertexArrays(1, &m_vao);
 }
 
 
-void Ball::update(float deltaTime) {
+void Astro::update(float deltaTime) {
   glm::vec3 angle = m_angularVelocity*deltaTime;
 
   glm::mat4 transform{glm::mat4(1.0f)};
@@ -247,16 +247,16 @@ void Ball::update(float deltaTime) {
 }
 
 //const funcao nao modifica o objeto
-float Ball::getRadius() const {
+float Astro::getRadius() const {
   return m_radius;
 }
 
-void Ball::changeColor() {
+void Astro::changeColor() {
   std::uniform_real_distribution<float> rd(0.0f, 1.0f);
   m_color = glm::vec3(rd(m_randomEngine), rd(m_randomEngine), rd(m_randomEngine));
 }
 
-glm::mat4 Ball::calcLocalMatrix() {
+glm::mat4 Astro::calcLocalMatrix() {
   glm::mat4 localMatrix = glm::mat4(1.0f);
   localMatrix = glm::translate(localMatrix, m_position);
   localMatrix = glm::rotate(localMatrix, glm::radians(90.0f), glm::vec3(0, 1, 0));
@@ -264,9 +264,9 @@ glm::mat4 Ball::calcLocalMatrix() {
   return localMatrix;
 }
 
-glm::mat4 Ball::calcWorldMatrix() {
+glm::mat4 Astro::calcWorldMatrix() {
   glm::mat4 world = calcLocalMatrix();
-  for (Ball* ball = m_parent; ball; ball=ball->m_parent) {
+  for (Astro* ball = m_parent; ball; ball=ball->m_parent) {
     world = ball->calcLocalMatrix()*world;
   }
   return world;

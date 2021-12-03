@@ -1,5 +1,5 @@
-#ifndef BALL_HPP_
-#define BALL_HPP_
+#ifndef ASTRO_HPP_
+#define ASTRO_HPP_
 
 #include "abcg.hpp"
 #include "vertex.hpp"
@@ -11,9 +11,9 @@ struct Vertex;
 
 const float PI = 3.1415926535;
 
-class Ball {
+class Astro {
  public:
-  virtual ~Ball() = default;
+  virtual ~Astro() = default;
 
   void generateSphere(glm::vec3 position, float radius);
   void initializeGL(GLuint program);
@@ -29,7 +29,7 @@ class Ball {
  private:
   friend OpenGLWindow;
 
-  Ball* m_parent{NULL};
+  Astro* m_parent{NULL};
 
   GLuint m_program{};
   GLint m_viewMatrixLoc{};
@@ -67,7 +67,7 @@ class Ball {
   std::vector<GLuint> m_indices;
 
   glm::vec4 m_lightDir{-1.0f, -1.0f, -1.0f, 0.0f};
-  glm::vec4 m_Ia{1.0f, 1.0f, 0.0f, 1.0f};
+  glm::vec4 m_Ia{1.0f, 1.0f, 1.0f, 1.0f};
   glm::vec4 m_Id{1.0f, 1.0f, 0.0f, 1.0f};
   glm::vec4 m_Is{1.0f, 1.0f, 0.0f, 1.0f};
   glm::vec4 m_Ka{0.1f, 0.1f, 0.1f, 1.0f};
