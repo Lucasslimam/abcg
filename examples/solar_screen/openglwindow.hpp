@@ -56,7 +56,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
 
 
   void loadModelFromFile(std::string_view path);
-  void update();
+  void update(float deltaTime);
 };
 
 #endif

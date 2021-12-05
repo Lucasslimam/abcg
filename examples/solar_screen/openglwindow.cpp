@@ -53,6 +53,7 @@ void OpenGLWindow::initializeGL() {
   // Load model
 
   m_sun.m_velocity = glm::vec3(0.0f);
+  m_sun.m_speedRotation = 0.2f;
   glm::vec3 m_sun_position = glm::vec3(0.0f, 0.0f, 0.0f);
   float m_sun_radius = 0.5f;
   m_sun.generateSphere(m_sun_position, m_sun_radius);
@@ -64,6 +65,7 @@ void OpenGLWindow::initializeGL() {
   float m_earth_radius = 0.25f;
   m_earth.generateSphere(m_earth_position, m_earth_radius);
   m_earth.m_velocity = glm::vec3(0.0f);
+  m_earth.m_speedRotation = 1.0f;
   m_earth.m_parent = &m_sun;
   m_earth.m_angularVelocity = glm::vec3(0.0f, PI/3, 0.0f);
   m_earth.loadModel(getAssetsPath()+ "earth.obj");
@@ -71,6 +73,7 @@ void OpenGLWindow::initializeGL() {
   m_moon.m_velocity = glm::vec3(0.0f);
   glm::vec3 m_moon_position = glm::vec3(0.5f, 0.0f, 0.0f);
   float m_moon_radius = 0.125f;
+  m_moon.m_speedRotation = 1.5f;
   m_moon.generateSphere(m_moon_position, m_moon_radius);
   m_moon.m_parent = &m_earth;
   m_moon.m_angularVelocity = glm::vec3(0.2f, 2*PI, 0.2f);
@@ -140,16 +143,17 @@ void OpenGLWindow::loadModelFromFile(std::string_view path) {
 }
 
 void OpenGLWindow::paintGL() {
-  update();
+  const float deltaTime{static_cast<float>(getDeltaTime())};
+  update(deltaTime);
 
   // Clear color buffer and depth buffer
   abcg::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   abcg::glViewport(0, 0, m_viewportWidth, m_viewportHeight);
 
-  m_earth.paintGL(m_camera);
-  m_sun.paintGL(m_camera);
-  m_moon.paintGL(m_camera);
+  m_earth.paintGL(m_camera, deltaTime);
+  m_sun.paintGL(m_camera, deltaTime);
+  m_moon.paintGL(m_camera, deltaTime);
 
   abcg::glUseProgram(0);
 }
@@ -171,8 +175,7 @@ void OpenGLWindow::terminateGL() {
   abcg::glDeleteVertexArrays(1, &m_VAO);
 }
 
-void OpenGLWindow::update() {
-  const float deltaTime{static_cast<float>(getDeltaTime())};
+void OpenGLWindow::update(float deltaTime) {
   m_earth.update(deltaTime);
   m_sun.update(deltaTime);
   m_moon.update(deltaTime);

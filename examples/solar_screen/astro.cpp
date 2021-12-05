@@ -155,7 +155,7 @@ void Astro::initializeGL(GLuint program) {
   abcg::glUseProgram(0);
 }
 
-void Astro::paintGL(const Camera& camera) {
+void Astro::paintGL(const Camera& camera, float deltaTime) {
 
   abcg::glUseProgram(m_program);
 
@@ -164,6 +164,8 @@ void Astro::paintGL(const Camera& camera) {
   if (m_trailBlinkTimer.elapsed() > 100.0 / 1000.0) m_trailBlinkTimer.restart();
 
   glm::mat4 modelMatrix = calcWorldMatrix();
+  modelMatrix = rotate(modelMatrix, m_angle, m_rotation);
+  m_angle += PI/4*m_speedRotation*deltaTime;
 
   abcg::glUniform4fv(lightDirLoc, 1, &m_lightDir.x);
   abcg::glUniform1f(shininessLoc, m_shininess);
@@ -216,8 +218,7 @@ void Astro::update(float deltaTime) {
   transform = glm::rotate(transform, -angle.y, glm::vec3(0.0f, 1.0f, 0.0f));
   transform = glm::rotate(transform, -angle.x, glm::vec3(1.0f, 0.0f, 0.0f));
   transform = glm::rotate(transform, -angle.z, glm::vec3(0.0f, 0.0f, 1.0f));
-
-  m_position = transform * glm::vec4(m_position, 1.0f); 
+  m_position = transform * glm::vec4(m_position, 1.0f);
 }
 
 //const funcao nao modifica o objeto

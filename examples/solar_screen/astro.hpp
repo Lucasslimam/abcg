@@ -19,7 +19,7 @@ class Astro {
 
   void generateSphere(glm::vec3 position, float radius);
   void initializeGL(GLuint program);
-  void paintGL(const Camera& camera);
+  void paintGL(const Camera& camera, float deltaTime);
   void terminateGL();
   void update(float deltaTime);
   float getRadius() const;
@@ -50,6 +50,8 @@ class Astro {
   
   //float m_radius{0.25};
   float m_radius{};
+  float m_angle{};
+  float m_speedRotation{};
 
   int m_stackCount{16};
   int m_sectorCount{16};
@@ -59,7 +61,7 @@ class Astro {
   GLuint m_ebo{};
 
   glm::vec3 m_scale{1.0f};
-  glm::vec3 m_rotation{0.0f}; /*rotacao no proprio eixo*/
+  glm::vec3 m_rotation{0.0f, 1.0f, 0.0f}; /*rotacao no proprio eixo*/
   glm::vec3 m_position{};
   glm::vec3 m_velocity{glm::vec3(1.0f, 0.7f, 0.5f)};
   glm::vec3 m_angularVelocity{0.0f};
