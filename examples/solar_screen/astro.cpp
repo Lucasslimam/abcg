@@ -77,60 +77,6 @@ void Astro::generateSphere(glm::vec3 position, float radius) {
   }
 }
 
-void Astro::loadModelFromFile(std::string_view path) {
-  tinyobj::ObjReader reader;
-
-  if (!reader.ParseFromFile(path.data())) {
-    if (!reader.Error().empty()) {
-      throw abcg::Exception{abcg::Exception::Runtime(
-          fmt::format("Failed to load model {} ({})", path, reader.Error()))};
-    }
-    throw abcg::Exception{
-        abcg::Exception::Runtime(fmt::format("Failed to load model {}", path))};
-  }
-
-  if (!reader.Warning().empty()) {
-    fmt::print("Warning: {}\n", reader.Warning());
-  }
-
-  const auto& attrib{reader.GetAttrib()};
-  const auto& shapes{reader.GetShapes()};
-
-  m_vertices.clear();
-  m_indices.clear();
-
-  // A key:value map with key=Vertex and value=index
-  std::unordered_map<Vertex, GLuint> hash{};
-
-  // Loop over shapes
-  for (const auto& shape : shapes) {
-    // Loop over indices
-    for (const auto offset : iter::range(shape.mesh.indices.size())) {
-      // Access to vertex
-      const tinyobj::index_t index{shape.mesh.indices.at(offset)};
-
-      // Vertex position
-      const std::size_t startIndex{static_cast<size_t>(3 * index.vertex_index)};
-      const float vx{attrib.vertices.at(startIndex + 0)};
-      const float vy{attrib.vertices.at(startIndex + 1)};
-      const float vz{attrib.vertices.at(startIndex + 2)};
-
-      Vertex vertex{};
-      vertex.position = {vx, vy, vz};
-
-      // If hash doesn't contain this vertex
-      if (hash.count(vertex) == 0) {
-        // Add this index (size of m_vertices)
-        hash[vertex] = m_vertices.size();
-        // Add this vertex
-        m_vertices.push_back(vertex);
-      }
-
-      m_indices.push_back(hash[vertex]);
-    }
-  }
-}
-
 void Astro::initializeGL(GLuint program) {
   terminateGL();
 
@@ -138,19 +84,22 @@ void Astro::initializeGL(GLuint program) {
   m_randomEngine.seed(seed);
 
   m_program = program;
+  abcg::glUseProgram(m_program);
+
   m_viewMatrixLoc = abcg::glGetUniformLocation(m_program, "viewMatrix");
   m_projMatrixLoc = abcg::glGetUniformLocation(m_program, "projMatrix");
   m_modelMatrixLoc = abcg::glGetUniformLocation(m_program, "modelMatrix");
   m_normalMatrixLoc = abcg::glGetUniformLocation(m_program, "normalMatrix");
+  m_diffuseTexLoc = abcg::glGetUniformLocation(m_program, "diffuseTex");
   m_colorLoc = abcg::glGetUniformLocation(m_program, "color");
-  IaLoc = abcg::glGetUniformLocation(program, "Ia");
-  IdLoc = abcg::glGetUniformLocation(program, "Id");
-  IsLoc = abcg::glGetUniformLocation(program, "Is");
-  KaLoc = abcg::glGetUniformLocation(program, "Ka");
-  KdLoc = abcg::glGetUniformLocation(program, "Kd");
-  KsLoc = abcg::glGetUniformLocation(program, "Ks");
-  lightDirLoc = abcg::glGetUniformLocation(program, "lightDirWorldSpace");
-  shininessLoc = abcg::glGetUniformLocation(program, "shininess");
+  IaLoc = abcg::glGetUniformLocation(m_program, "Ia");
+  IdLoc = abcg::glGetUniformLocation(m_program, "Id");
+  IsLoc = abcg::glGetUniformLocation(m_program, "Is");
+  KaLoc = abcg::glGetUniformLocation(m_program, "Ka");
+  KdLoc = abcg::glGetUniformLocation(m_program, "Kd");
+  KsLoc = abcg::glGetUniformLocation(m_program, "Ks");
+  lightDirLoc = abcg::glGetUniformLocation(m_program, "lightDirWorldSpace");
+  shininessLoc = abcg::glGetUniformLocation(m_program, "shininess");
 
 
   //Declarar vetor positions
@@ -184,16 +133,25 @@ void Astro::initializeGL(GLuint program) {
   /*duvida fica aqui mesmo?*/
   GLsizei normalOffset{sizeof(glm::vec3)};
   const GLint normalAttribute{abcg::glGetAttribLocation(m_program, "inNormal")};
-  abcg::glEnableVertexAttribArray(normalAttribute);
-  abcg::glVertexAttribPointer(normalAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 
+  if (normalAttribute >= 0) {  
+    abcg::glEnableVertexAttribArray(normalAttribute);
+    abcg::glVertexAttribPointer(normalAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 
                               reinterpret_cast<void*>(normalOffset));
+  }
+  const GLint texCoordAttribute{abcg::glGetAttribLocation(m_program, "inTexCoord")};
+  if (texCoordAttribute >= 0) {
+    abcg::glEnableVertexAttribArray(texCoordAttribute);
+    GLsizei texOffset{sizeof(glm::vec3) + sizeof(glm::vec3)};
+    abcg::glVertexAttribPointer(texCoordAttribute, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), 
+                                      reinterpret_cast<void*>(texOffset));
+  }
 
   abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
   abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
-  /*falta a parte do normal*/
   
   // End of binding to current VAO
   abcg::glBindVertexArray(0);
+  abcg::glUseProgram(0);
 }
 
 void Astro::paintGL() {
@@ -215,9 +173,20 @@ void Astro::paintGL() {
   abcg::glUniform4fv(KdLoc, 1, &m_Kd.x);
   abcg::glUniform4fv(KsLoc, 1, &m_Ks.x);
 
+  GLint textureUnit{0};
+  abcg::glActiveTexture(GL_TEXTURE0 + textureUnit);
+  abcg::glBindTexture(GL_TEXTURE_2D, m_diffuseTexture);
+  abcg::glUniform1i(m_diffuseTexLoc, textureUnit);
+
+  // Set minification and magnification parameters
+  abcg::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  abcg::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  // Set texture wrapping parameters
+  abcg::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  abcg::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
   abcg::glUniformMatrix4fv(m_modelMatrixLoc, 1, GL_FALSE, &modelMatrix[0][0]);
-
 
   abcg::glUniform4f(m_colorLoc, m_color.r, m_color.g, m_color.b, 1.0f);
   abcg::glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, nullptr);
@@ -271,8 +240,13 @@ glm::mat4 Astro::calcWorldMatrix() {
   return world;
 }
 
+/*Novo*/
+
 void Astro::loadDiffuseTexture(std::string_view path) {
-  if (!std::filesystem::exists(path)) return;
+  if (!std::filesystem::exists(path)) {
+    std::cout << "Erro Textura nao existe\n";
+    return;
+  }
 
   abcg::glDeleteTextures(1, &m_diffuseTexture);
   m_diffuseTexture = abcg::opengl::loadTexture(path);
@@ -313,8 +287,11 @@ void Astro::loadObj(std::string_view path, bool standardize) {
 
     if (!mat.diffuse_texname.empty())
       loadDiffuseTexture(basePath + mat.diffuse_texname);
+    else
+      std::cout << "Falha em criar textura!";
   } else {
     // Default values
+    std::cout << "Falha em carregar material!";
     m_Ka = {0.1f, 0.1f, 0.1f, 1.0f};
     m_Kd = {0.7f, 0.7f, 0.7f, 1.0f};
     m_Ks = {1.0f, 1.0f, 1.0f, 1.0f};
@@ -324,8 +301,6 @@ void Astro::loadObj(std::string_view path, bool standardize) {
   if (standardize) {
     this->standardize();
   }
-
-  createBuffers();
 }
 
 void Astro::standardize() {
@@ -351,23 +326,7 @@ void Astro::standardize() {
   }
 }
 
-void Astro::createBuffers() {
-  // Delete previous buffers
-  abcg::glDeleteBuffers(1, &m_ebo);
-  abcg::glDeleteBuffers(1, &m_vbo);
-
-  // VBO
-  abcg::glGenBuffers(1, &m_vbo);
-  abcg::glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-  abcg::glBufferData(GL_ARRAY_BUFFER, sizeof(m_vertices[0]) * m_vertices.size(),
-                     m_vertices.data(), GL_STATIC_DRAW);
-  abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-  // EBO
-  abcg::glGenBuffers(1, &m_ebo);
-  abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
-  abcg::glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                     sizeof(m_indices[0]) * m_indices.size(), m_indices.data(),
-                     GL_STATIC_DRAW);
-  abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+void Astro::loadModel(std::string_view path) {
+  terminateGL();
+  loadObj(path);
 }

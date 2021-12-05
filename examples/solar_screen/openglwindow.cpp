@@ -22,7 +22,10 @@ void OpenGLWindow::initializeGL() {
   m_box_program = createProgramFromFile(getAssetsPath() + "lookat.vert",
                                   getAssetsPath() + "lookat.frag");
 
-  m_ground.initializeGL(m_program);
+  m_earth_program = createProgramFromFile(getAssetsPath() + "earth.vert",
+                                    getAssetsPath() + "earth.frag");
+
+  m_ground.initializeGL(m_earth_program);
 
   // Load model
 
@@ -39,6 +42,7 @@ void OpenGLWindow::initializeGL() {
   m_earth.m_velocity = glm::vec3(0.0f);
   m_earth.m_parent = &m_sun;
   m_earth.m_angularVelocity = glm::vec3(0.0f, PI/2, 0.0f);
+  m_earth.loadModel(getAssetsPath()+ "earth.obj");
   
 
   m_moon.m_velocity = glm::vec3(0.0f);
@@ -52,7 +56,7 @@ void OpenGLWindow::initializeGL() {
   m_box.m_vertices = std::vector<Vertex>(m_vertices);
   m_box.m_indices = std::vector<GLuint>(m_indices);
 
-  m_earth.initializeGL(m_program);
+  m_earth.initializeGL(m_earth_program);
   m_sun.initializeGL(m_program);
   m_moon.initializeGL(m_program);
   m_box.initializeGL(m_box_program);

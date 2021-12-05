@@ -20,13 +20,13 @@ class Astro {
   void initializeGL(GLuint program);
   void paintGL();
   void terminateGL();
-  void loadModelFromFile(std::string_view path);
   void update(float deltaTime);
   float getRadius() const;
   void changeColor();
   glm::mat4 calcWorldMatrix();
   glm::mat4 calcLocalMatrix();
   void loadObj(std::string_view path, bool standardize = true);
+  void loadModel(std::string_view path);
   
 
  private:
@@ -41,6 +41,7 @@ class Astro {
   GLint m_projMatrixLoc{};
   GLint m_modelMatrixLoc{};
   GLint m_normalMatrixLoc{};
+  GLint m_diffuseTexLoc{};
   GLint m_colorLoc{};
   GLint IaLoc, IdLoc, IsLoc;
   GLint KaLoc, KdLoc, KsLoc;
