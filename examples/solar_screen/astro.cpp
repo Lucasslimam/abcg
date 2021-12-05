@@ -25,7 +25,6 @@ void Astro::generateSphere(glm::vec3 position, float radius) {
   m_vertices.clear();
   m_indices.clear();
 
-
   Vertex vertex{};
   float xy;
   float lengthInv = 1.0f / m_radius; 
@@ -270,4 +269,105 @@ glm::mat4 Astro::calcWorldMatrix() {
     world = ball->calcLocalMatrix()*world;
   }
   return world;
+}
+
+void Astro::loadDiffuseTexture(std::string_view path) {
+  if (!std::filesystem::exists(path)) return;
+
+  abcg::glDeleteTextures(1, &m_diffuseTexture);
+  m_diffuseTexture = abcg::opengl::loadTexture(path);
+}
+
+void Astro::loadObj(std::string_view path, bool standardize) {
+  const auto basePath{std::filesystem::path{path}.parent_path().string() + "/"};
+
+  tinyobj::ObjReaderConfig readerConfig;
+  readerConfig.mtl_search_path = basePath;  // Path to material files
+
+  tinyobj::ObjReader reader;
+
+  if (!reader.ParseFromFile(path.data(), readerConfig)) {
+    if (!reader.Error().empty()) {
+      throw abcg::Exception{abcg::Exception::Runtime(
+          fmt::format("Failed to load model {} ({})", path, reader.Error()))};
+    }
+    throw abcg::Exception{
+        abcg::Exception::Runtime(fmt::format("Failed to load model {}", path))};
+  }
+
+  if (!reader.Warning().empty()) {
+    fmt::print("Warning: {}\n", reader.Warning());
+  }
+
+  const auto& attrib{reader.GetAttrib()};
+  const auto& shapes{reader.GetShapes()};
+  const auto& materials{reader.GetMaterials()};
+
+  // Use properties of first material, if available
+  if (!materials.empty()) {
+    const auto& mat{materials.at(0)};  // First material
+    m_Ka = glm::vec4(mat.ambient[0], mat.ambient[1], mat.ambient[2], 1);
+    m_Kd = glm::vec4(mat.diffuse[0], mat.diffuse[1], mat.diffuse[2], 1);
+    m_Ks = glm::vec4(mat.specular[0], mat.specular[1], mat.specular[2], 1);
+    m_shininess = mat.shininess;
+
+    if (!mat.diffuse_texname.empty())
+      loadDiffuseTexture(basePath + mat.diffuse_texname);
+  } else {
+    // Default values
+    m_Ka = {0.1f, 0.1f, 0.1f, 1.0f};
+    m_Kd = {0.7f, 0.7f, 0.7f, 1.0f};
+    m_Ks = {1.0f, 1.0f, 1.0f, 1.0f};
+    m_shininess = 25.0f;
+  }
+
+  if (standardize) {
+    this->standardize();
+  }
+
+  createBuffers();
+}
+
+void Astro::standardize() {
+  // Center to origin and normalize largest bound to [-1, 1]
+
+  // Get bounds
+  glm::vec3 max(std::numeric_limits<float>::lowest());
+  glm::vec3 min(std::numeric_limits<float>::max());
+  for (const auto& vertex : m_vertices) {
+    max.x = std::max(max.x, vertex.position.x);
+    max.y = std::max(max.y, vertex.position.y);
+    max.z = std::max(max.z, vertex.position.z);
+    min.x = std::min(min.x, vertex.position.x);
+    min.y = std::min(min.y, vertex.position.y);
+    min.z = std::min(min.z, vertex.position.z);
+  }
+
+  // Center and scale
+  const auto center{(min + max) / 2.0f};
+  const auto scaling{2.0f / glm::length(max - min)};
+  for (auto& vertex : m_vertices) {
+    vertex.position = (vertex.position - center) * scaling;
+  }
+}
+
+void Astro::createBuffers() {
+  // Delete previous buffers
+  abcg::glDeleteBuffers(1, &m_ebo);
+  abcg::glDeleteBuffers(1, &m_vbo);
+
+  // VBO
+  abcg::glGenBuffers(1, &m_vbo);
+  abcg::glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+  abcg::glBufferData(GL_ARRAY_BUFFER, sizeof(m_vertices[0]) * m_vertices.size(),
+                     m_vertices.data(), GL_STATIC_DRAW);
+  abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+  // EBO
+  abcg::glGenBuffers(1, &m_ebo);
+  abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+  abcg::glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                     sizeof(m_indices[0]) * m_indices.size(), m_indices.data(),
+                     GL_STATIC_DRAW);
+  abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }

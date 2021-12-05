@@ -5,6 +5,7 @@
 #include "vertex.hpp"
 #include <vector>
 #include <random>
+#include <filesystem>
 
 class OpenGLWindow;
 struct Vertex;
@@ -25,6 +26,8 @@ class Astro {
   void changeColor();
   glm::mat4 calcWorldMatrix();
   glm::mat4 calcLocalMatrix();
+  void loadObj(std::string_view path, bool standardize = true);
+  
 
  private:
   friend OpenGLWindow;
@@ -32,6 +35,8 @@ class Astro {
   Astro* m_parent{NULL};
 
   GLuint m_program{};
+  GLuint m_diffuseTexture{};
+
   GLint m_viewMatrixLoc{};
   GLint m_projMatrixLoc{};
   GLint m_modelMatrixLoc{};
@@ -74,5 +79,9 @@ class Astro {
   glm::vec4 m_Kd{0.7f, 0.7f, 0.7f, 1.0f};
   glm::vec4 m_Ks{1.0f, 1.0f, 1.0f, 1.0f};
   float m_shininess{25.0f};
+
+  void createBuffers();
+  void standardize();
+  void loadDiffuseTexture(std::string_view path);
 };
 #endif
