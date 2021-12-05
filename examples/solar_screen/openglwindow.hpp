@@ -23,7 +23,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   GLuint m_VBO{};
   GLuint m_EBO{};
   GLuint m_program{};
-  GLuint m_earth_program{};
+  GLuint m_astro_program{};
   GLuint m_box_program{};
 
   int m_viewportWidth{};

@@ -246,8 +246,6 @@ glm::mat4 Astro::calcWorldMatrix() {
   return world;
 }
 
-/*Novo*/
-
 void Astro::loadDiffuseTexture(std::string_view path) {
   if (!std::filesystem::exists(path)) {
     std::cout << "Erro Textura nao existe\n";
@@ -258,7 +256,7 @@ void Astro::loadDiffuseTexture(std::string_view path) {
   m_diffuseTexture = abcg::opengl::loadTexture(path);
 }
 
-void Astro::loadObj(std::string_view path, bool standardize) {
+void Astro::loadObj(std::string_view path) {
   const auto basePath{std::filesystem::path{path}.parent_path().string() + "/"};
 
   tinyobj::ObjReaderConfig readerConfig;
@@ -279,8 +277,6 @@ void Astro::loadObj(std::string_view path, bool standardize) {
     fmt::print("Warning: {}\n", reader.Warning());
   }
 
-  const auto& attrib{reader.GetAttrib()};
-  const auto& shapes{reader.GetShapes()};
   const auto& materials{reader.GetMaterials()};
 
   // Use properties of first material, if available

@@ -26,7 +26,7 @@ class Astro {
   void changeColor();
   glm::mat4 calcWorldMatrix();
   glm::mat4 calcLocalMatrix();
-  void loadObj(std::string_view path, bool standardize = true);
+  void loadObj(std::string_view path);
   void loadModel(std::string_view path);
   
 

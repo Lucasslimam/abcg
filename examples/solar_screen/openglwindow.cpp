@@ -47,7 +47,7 @@ void OpenGLWindow::initializeGL() {
   abcg::glEnable(GL_DEPTH_TEST);
 
   // Create program
-  m_earth_program = createProgramFromFile(getAssetsPath() + "earth.vert",
+  m_astro_program = createProgramFromFile(getAssetsPath() + "earth.vert",
                                     getAssetsPath() + "earth.frag");
 
   // Load model
@@ -65,7 +65,7 @@ void OpenGLWindow::initializeGL() {
   m_earth.generateSphere(m_earth_position, m_earth_radius);
   m_earth.m_velocity = glm::vec3(0.0f);
   m_earth.m_parent = &m_sun;
-  m_earth.m_angularVelocity = glm::vec3(0.0f, PI/2, 0.0f);
+  m_earth.m_angularVelocity = glm::vec3(0.0f, PI/3, 0.0f);
   m_earth.loadModel(getAssetsPath()+ "earth.obj");
   
   m_moon.m_velocity = glm::vec3(0.0f);
@@ -76,9 +76,9 @@ void OpenGLWindow::initializeGL() {
   m_moon.m_angularVelocity = glm::vec3(0.2f, 2*PI, 0.2f);
   m_moon.loadModel(getAssetsPath()+ "moon.obj");
 
-  m_earth.initializeGL(m_earth_program);
-  m_sun.initializeGL(m_earth_program);
-  m_moon.initializeGL(m_earth_program);
+  m_earth.initializeGL(m_astro_program);
+  m_sun.initializeGL(m_astro_program);
+  m_moon.initializeGL(m_astro_program);
   resizeGL(getWindowSettings().width, getWindowSettings().height);
 }
 
