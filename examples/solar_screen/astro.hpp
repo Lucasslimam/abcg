@@ -8,6 +8,7 @@
 #include <filesystem>
 
 class OpenGLWindow;
+class Camera;
 struct Vertex;
 
 const float PI = 3.1415926535;
@@ -18,7 +19,7 @@ class Astro {
 
   void generateSphere(glm::vec3 position, float radius);
   void initializeGL(GLuint program);
-  void paintGL();
+  void paintGL(const Camera& camera);
   void terminateGL();
   void update(float deltaTime);
   float getRadius() const;
@@ -74,8 +75,8 @@ class Astro {
 
   glm::vec4 m_lightDir{-1.0f, -1.0f, -1.0f, 0.0f};
   glm::vec4 m_Ia{1.0f, 1.0f, 1.0f, 1.0f};
-  glm::vec4 m_Id{1.0f, 1.0f, 0.0f, 1.0f};
-  glm::vec4 m_Is{1.0f, 1.0f, 0.0f, 1.0f};
+  glm::vec4 m_Id{1.0f, 0.87f, 0.67f, 1.0f};
+  glm::vec4 m_Is{1.0f, 0.87f, 0.67, 1.0f};
   glm::vec4 m_Ka{0.1f, 0.1f, 0.1f, 1.0f};
   glm::vec4 m_Kd{0.7f, 0.7f, 0.7f, 1.0f};
   glm::vec4 m_Ks{1.0f, 1.0f, 1.0f, 1.0f};

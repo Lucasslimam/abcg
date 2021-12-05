@@ -1,4 +1,5 @@
 #include "astro.hpp"
+#include "camera.hpp"
 #include <vector>
 #include <glm/gtx/fast_trigonometry.hpp>
 #include <glm/gtx/rotate_vector.hpp>
@@ -154,7 +155,7 @@ void Astro::initializeGL(GLuint program) {
   abcg::glUseProgram(0);
 }
 
-void Astro::paintGL() {
+void Astro::paintGL(const Camera& camera) {
 
   abcg::glUseProgram(m_program);
 
@@ -172,6 +173,11 @@ void Astro::paintGL() {
   abcg::glUniform4fv(KaLoc, 1, &m_Ka.x);
   abcg::glUniform4fv(KdLoc, 1, &m_Kd.x);
   abcg::glUniform4fv(KsLoc, 1, &m_Ks.x);
+
+  // Set uniform variables for viewMatrix and projMatrix
+  // These matrices are used for every scene object
+  abcg::glUniformMatrix4fv(m_viewMatrixLoc, 1, GL_FALSE, &camera.m_viewMatrix[0][0]);
+  abcg::glUniformMatrix4fv(m_projMatrixLoc, 1, GL_FALSE, &camera.m_projMatrix[0][0]);
 
   GLint textureUnit{0};
   abcg::glActiveTexture(GL_TEXTURE0 + textureUnit);
@@ -297,10 +303,10 @@ void Astro::loadObj(std::string_view path, bool standardize) {
     m_Ks = {1.0f, 1.0f, 1.0f, 1.0f};
     m_shininess = 25.0f;
   }
-
+  /*
   if (standardize) {
     this->standardize();
-  }
+  }*/
 }
 
 void Astro::standardize() {

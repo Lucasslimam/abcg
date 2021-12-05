@@ -9,6 +9,37 @@
 #include <unordered_map>
 #include <glm/gtc/matrix_inverse.hpp>
 
+void OpenGLWindow::handleEvent(SDL_Event& ev) {
+  if (ev.type == SDL_KEYDOWN) {
+    if (ev.key.keysym.sym == SDLK_UP || ev.key.keysym.sym == SDLK_w)
+      m_dollySpeed = 1.0f;
+    if (ev.key.keysym.sym == SDLK_DOWN || ev.key.keysym.sym == SDLK_s)
+      m_dollySpeed = -1.0f;
+    if (ev.key.keysym.sym == SDLK_LEFT || ev.key.keysym.sym == SDLK_a)
+      m_panSpeed = -1.0f;
+    if (ev.key.keysym.sym == SDLK_RIGHT || ev.key.keysym.sym == SDLK_d)
+      m_panSpeed = 1.0f;
+    if (ev.key.keysym.sym == SDLK_q) m_truckSpeed = -1.0f;
+    if (ev.key.keysym.sym == SDLK_e) m_truckSpeed = 1.0f;
+  }
+  if (ev.type == SDL_KEYUP) {
+    if ((ev.key.keysym.sym == SDLK_UP || ev.key.keysym.sym == SDLK_w) &&
+        m_dollySpeed > 0)
+      m_dollySpeed = 0.0f;
+    if ((ev.key.keysym.sym == SDLK_DOWN || ev.key.keysym.sym == SDLK_s) &&
+        m_dollySpeed < 0)
+      m_dollySpeed = 0.0f;
+    if ((ev.key.keysym.sym == SDLK_LEFT || ev.key.keysym.sym == SDLK_a) &&
+        m_panSpeed < 0)
+      m_panSpeed = 0.0f;
+    if ((ev.key.keysym.sym == SDLK_RIGHT || ev.key.keysym.sym == SDLK_d) &&
+        m_panSpeed > 0)
+      m_panSpeed = 0.0f;
+    if (ev.key.keysym.sym == SDLK_q && m_truckSpeed < 0) m_truckSpeed = 0.0f;
+    if (ev.key.keysym.sym == SDLK_e && m_truckSpeed > 0) m_truckSpeed = 0.0f;
+  }
+}
+
 void OpenGLWindow::initializeGL() {
   abcg::glClearColor(0, 0, 0, 1);
 
@@ -16,16 +47,8 @@ void OpenGLWindow::initializeGL() {
   abcg::glEnable(GL_DEPTH_TEST);
 
   // Create program
-  m_program = createProgramFromFile(getAssetsPath() + "ball.vert",
-                                    getAssetsPath() + "ball.frag");
-                                  
-  m_box_program = createProgramFromFile(getAssetsPath() + "lookat.vert",
-                                  getAssetsPath() + "lookat.frag");
-
   m_earth_program = createProgramFromFile(getAssetsPath() + "earth.vert",
                                     getAssetsPath() + "earth.frag");
-
-  m_ground.initializeGL(m_earth_program);
 
   // Load model
 
@@ -34,6 +57,7 @@ void OpenGLWindow::initializeGL() {
   float m_sun_radius = 0.5f;
   m_sun.generateSphere(m_sun_position, m_sun_radius);
   m_sun.m_Ka = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
+  m_sun.loadModel(getAssetsPath()+ "sun.obj");
   
 
   glm::vec3 m_earth_position = glm::vec3(3.5f, 0.0f, 0.0f);
@@ -44,22 +68,17 @@ void OpenGLWindow::initializeGL() {
   m_earth.m_angularVelocity = glm::vec3(0.0f, PI/2, 0.0f);
   m_earth.loadModel(getAssetsPath()+ "earth.obj");
   
-
   m_moon.m_velocity = glm::vec3(0.0f);
   glm::vec3 m_moon_position = glm::vec3(0.5f, 0.0f, 0.0f);
   float m_moon_radius = 0.125f;
   m_moon.generateSphere(m_moon_position, m_moon_radius);
   m_moon.m_parent = &m_earth;
   m_moon.m_angularVelocity = glm::vec3(0.2f, 2*PI, 0.2f);
-
-  loadModelFromFile(getAssetsPath() + "box.obj");
-  m_box.m_vertices = std::vector<Vertex>(m_vertices);
-  m_box.m_indices = std::vector<GLuint>(m_indices);
+  m_moon.loadModel(getAssetsPath()+ "moon.obj");
 
   m_earth.initializeGL(m_earth_program);
-  m_sun.initializeGL(m_program);
-  m_moon.initializeGL(m_program);
-  m_box.initializeGL(m_box_program);
+  m_sun.initializeGL(m_earth_program);
+  m_moon.initializeGL(m_earth_program);
   resizeGL(getWindowSettings().width, getWindowSettings().height);
 }
 
@@ -128,31 +147,9 @@ void OpenGLWindow::paintGL() {
 
   abcg::glViewport(0, 0, m_viewportWidth, m_viewportHeight);
 
-  abcg::glUseProgram(m_program);
-
-  // Get location of uniform variables (could be precomputed)
-  const GLint viewMatrixLoc{
-      abcg::glGetUniformLocation(m_program, "viewMatrix")};
-  const GLint projMatrixLoc{
-      abcg::glGetUniformLocation(m_program, "projMatrix")};
-
-  // Set uniform variables for viewMatrix and projMatrix
-  // These matrices are used for every scene object
-  abcg::glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE,
-                           &m_camera.m_viewMatrix[0][0]);
-  abcg::glUniformMatrix4fv(projMatrixLoc, 1, GL_FALSE,
-                           &m_camera.m_projMatrix[0][0]);
-
-  abcg::glBindVertexArray(m_VAO);
-
-  //Draw box
-  //m_box.paintGL();
-  //Draw ball
-  m_earth.paintGL();
-  m_sun.paintGL();
-  m_moon.paintGL();
-  // Draw ground
-  m_ground.paintGL();
+  m_earth.paintGL(m_camera);
+  m_sun.paintGL(m_camera);
+  m_moon.paintGL(m_camera);
 
   abcg::glUseProgram(0);
 }
@@ -167,7 +164,6 @@ void OpenGLWindow::resizeGL(int width, int height) {
 }
 
 void OpenGLWindow::terminateGL() {
-  m_ground.terminateGL();
 
   abcg::glDeleteProgram(m_program);
   abcg::glDeleteBuffers(1, &m_EBO);
@@ -180,23 +176,8 @@ void OpenGLWindow::update() {
   m_earth.update(deltaTime);
   m_sun.update(deltaTime);
   m_moon.update(deltaTime);
-  checkCollision();
-  m_camera.computeViewMatrix();
-  //m_camera.orbit(0.25f*deltaTime);
-}
-
-//Function to verify collision, also responsible for the dynamic proposed with the colors.
-void OpenGLWindow::checkCollision() {
-
-  for (int i = 0; i < 3; i++) {
-    if (std::abs(m_earth.m_position[i]) + m_earth.getRadius() > m_box.getSideLength()/2.0f) {
-      if (std::signbit(m_earth.m_position[i]) == std::signbit(m_earth.m_velocity[i])) {
-        m_earth.m_velocity[i] *= -1.0f;
-        m_box.m_color = m_earth.m_color;
-        m_ground.setColorTileOne(m_earth.m_color);
-        m_earth.changeColor();
-        m_ground.setColorTileTwo(m_earth.m_color);
-      }
-    }
-  } 
+  m_camera.dolly(m_dollySpeed * deltaTime);
+  m_camera.truck(m_truckSpeed * deltaTime);
+  m_camera.pan(m_panSpeed * deltaTime);
+  m_camera.computeViewMatrix(); 
 }
