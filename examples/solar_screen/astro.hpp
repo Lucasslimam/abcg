@@ -85,7 +85,6 @@ class Astro {
   float m_shininess{25.0f};
 
   void createBuffers();
-  void standardize();
   void loadDiffuseTexture(std::string_view path);
 };
 #endif

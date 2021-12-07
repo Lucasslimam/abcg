@@ -18,8 +18,19 @@
 #include "openglwindow.hpp"
 
 
+/*
+No processamento abaixo utilizamos uma analogia
+com a geografia e utilizamos Stacks como os paralelos
+e Sectors como os meridianos.
+
+Alem disso, utilizei as seguintes relacoes matematicas
+
+X = (r*cos(u))*cos(v)
+Y = (r*cos(u))*sen(v)
+Z = r*sen(u)
+*/
+
 void Astro::generateSphere(glm::vec3 position, float radius) {
-  // clear memory of prev arrays
   m_position = position;
   m_radius = radius; 
 
@@ -33,19 +44,22 @@ void Astro::generateSphere(glm::vec3 position, float radius) {
   float stackStep = PI / m_stackCount;
   float sectorAngle, stackAngle;
 
+  /*
+  v = (2*PI*(Passo-Sector)) / (Contador-Sector)
+  u =  (PI/2) - (PI*(Passo-Stack)/Contador-Stack)
+  */
+
   for(int i = 0; i <= m_stackCount; ++i) { 
-    stackAngle = PI / 2 - i * stackStep;                 // starting from pi/2 to -pi/2
+    stackAngle = PI / 2 - i * stackStep;  // seguindo intervalo [pi/2, -pi/2]
     xy = m_radius * std::cos(stackAngle);                // r * cos(u)
     vertex.position.z = m_radius * std::sin(stackAngle); // r * sin(u)
          
-    // add (sectorCount+1) vertices per stack
-    // the first and last vertices have same position and normal, but different tex coords
     for (int j = 0; j <= m_sectorCount; ++j){
-      sectorAngle = j * sectorStep;           // starting from 0 to 2pi
+      sectorAngle = j * sectorStep; // Indo de 0 rad para 2*PI rad
 
       // vertex position (x, y, z)
-      vertex.position.x = xy * std::cos(sectorAngle);      // r * cos(u) * cos(v)
-      vertex.position.y = xy * std::sin(sectorAngle);     // r * cos(u) * sin(v)
+      vertex.position.x = xy * std::cos(sectorAngle);  // r * cos(u) * cos(v)
+      vertex.position.y = xy * std::sin(sectorAngle);  // r * cos(u) * sin(v)
       
       // normalized vertex normal (nx, ny, nz)
       vertex.normal = lengthInv*vertex.position;
@@ -87,6 +101,7 @@ void Astro::initializeGL(GLuint program) {
   m_program = program;
   abcg::glUseProgram(m_program);
 
+  /*Dando Locs necessários que serão utilizados no paintGL*/
   m_viewMatrixLoc = abcg::glGetUniformLocation(m_program, "viewMatrix");
   m_projMatrixLoc = abcg::glGetUniformLocation(m_program, "projMatrix");
   m_modelMatrixLoc = abcg::glGetUniformLocation(m_program, "modelMatrix");
@@ -103,16 +118,14 @@ void Astro::initializeGL(GLuint program) {
   shininessLoc = abcg::glGetUniformLocation(m_program, "shininess");
 
 
-  //Declarar vetor positions
-
-  // Generate VBO
+  // Gerando VBO
   abcg::glGenBuffers(1, &m_vbo);
   abcg::glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
   abcg::glBufferData(GL_ARRAY_BUFFER, sizeof(m_vertices[0]) * m_vertices.size(),
                      m_vertices.data(), GL_STATIC_DRAW);
   abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-  // Generate EBO
+  // Gerando EBO
   abcg::glGenBuffers(1, &m_ebo);
   abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
   abcg::glBufferData(GL_ELEMENT_ARRAY_BUFFER,
@@ -120,10 +133,9 @@ void Astro::initializeGL(GLuint program) {
                      GL_STATIC_DRAW);
   abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-  // Create VAO
+  // Criando VAO
   abcg::glGenVertexArrays(1, &m_vao);
 
-  // Bind vertex attributes to current VAO
   abcg::glBindVertexArray(m_vao);
 
   abcg::glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
@@ -131,7 +143,6 @@ void Astro::initializeGL(GLuint program) {
   abcg::glEnableVertexAttribArray(positionAttribute);
   abcg::glVertexAttribPointer(positionAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), nullptr);
 
-  /*duvida fica aqui mesmo?*/
   GLsizei normalOffset{sizeof(glm::vec3)};
   const GLint normalAttribute{abcg::glGetAttribLocation(m_program, "inNormal")};
   if (normalAttribute >= 0) {  
@@ -176,8 +187,6 @@ void Astro::paintGL(const Camera& camera, float deltaTime) {
   abcg::glUniform4fv(KdLoc, 1, &m_Kd.x);
   abcg::glUniform4fv(KsLoc, 1, &m_Ks.x);
 
-  // Set uniform variables for viewMatrix and projMatrix
-  // These matrices are used for every scene object
   abcg::glUniformMatrix4fv(m_viewMatrixLoc, 1, GL_FALSE, &camera.m_viewMatrix[0][0]);
   abcg::glUniformMatrix4fv(m_projMatrixLoc, 1, GL_FALSE, &camera.m_projMatrix[0][0]);
 
@@ -231,6 +240,10 @@ void Astro::changeColor() {
   m_color = glm::vec3(rd(m_randomEngine), rd(m_randomEngine), rd(m_randomEngine));
 }
 
+
+/*Na funcao abaixo eh calculada a modelMatrix do objeto 
+independente de qualquer outro*/
+
 glm::mat4 Astro::calcLocalMatrix() {
   glm::mat4 localMatrix = glm::mat4(1.0f);
   localMatrix = glm::translate(localMatrix, m_position);
@@ -239,6 +252,8 @@ glm::mat4 Astro::calcLocalMatrix() {
   return localMatrix;
 }
 
+/*Nessa funcao, de forma quase recursiva, ha o calculo de cada Astro em relacao
+ao Astro que ele esta circundando, interferindo no calculo da matrix modelo*/
 glm::mat4 Astro::calcWorldMatrix() {
   glm::mat4 world = calcLocalMatrix();
   for (Astro* ball = m_parent; ball; ball=ball->m_parent) {
@@ -299,33 +314,6 @@ void Astro::loadObj(std::string_view path) {
     m_Kd = {0.7f, 0.7f, 0.7f, 1.0f};
     m_Ks = {1.0f, 1.0f, 1.0f, 1.0f};
     m_shininess = 25.0f;
-  }
-  /*
-  if (standardize) {
-    this->standardize();
-  }*/
-}
-
-void Astro::standardize() {
-  // Center to origin and normalize largest bound to [-1, 1]
-
-  // Get bounds
-  glm::vec3 max(std::numeric_limits<float>::lowest());
-  glm::vec3 min(std::numeric_limits<float>::max());
-  for (const auto& vertex : m_vertices) {
-    max.x = std::max(max.x, vertex.position.x);
-    max.y = std::max(max.y, vertex.position.y);
-    max.z = std::max(max.z, vertex.position.z);
-    min.x = std::min(min.x, vertex.position.x);
-    min.y = std::min(min.y, vertex.position.y);
-    min.z = std::min(min.z, vertex.position.z);
-  }
-
-  // Center and scale
-  const auto center{(min + max) / 2.0f};
-  const auto scaling{2.0f / glm::length(max - min)};
-  for (auto& vertex : m_vertices) {
-    vertex.position = (vertex.position - center) * scaling;
   }
 }
 
