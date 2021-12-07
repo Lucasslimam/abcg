@@ -40,6 +40,8 @@ void OpenGLWindow::handleEvent(SDL_Event& ev) {
   }
 }
 
+
+
 void OpenGLWindow::initializeGL() {
   abcg::glClearColor(0, 0, 0, 1);
 
@@ -49,9 +51,12 @@ void OpenGLWindow::initializeGL() {
   // Create program
   m_astro_program = createProgramFromFile(getAssetsPath() + "earth.vert",
                                     getAssetsPath() + "earth.frag");
+  m_cube_program = createProgramFromFile(getAssetsPath() + "cube.vert",
+                                    getAssetsPath() + "cube.frag");
 
   // Load model
-
+    // Load cubemap
+  m_cube.loadCubeTexture(getAssetsPath() + "maps/cube/");
   m_sun.m_velocity = glm::vec3(0.0f);
   m_sun.m_speedRotation = 0.2f;
   glm::vec3 m_sun_position = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -62,23 +67,24 @@ void OpenGLWindow::initializeGL() {
   
 
   glm::vec3 m_earth_position = glm::vec3(3.5f, 0.0f, 0.0f);
-  float m_earth_radius = 0.25f;
+  float m_earth_radius = 0.2f;
   m_earth.generateSphere(m_earth_position, m_earth_radius);
   m_earth.m_velocity = glm::vec3(0.0f);
   m_earth.m_speedRotation = 1.0f;
   m_earth.m_parent = &m_sun;
-  m_earth.m_angularVelocity = glm::vec3(0.0f, PI/3, 0.0f);
+  m_earth.m_angularVelocity = glm::vec3(0.0f, PI/8, 0.0f);
   m_earth.loadModel(getAssetsPath()+ "earth.obj");
   
   m_moon.m_velocity = glm::vec3(0.0f);
   glm::vec3 m_moon_position = glm::vec3(0.5f, 0.0f, 0.0f);
-  float m_moon_radius = 0.125f;
+  float m_moon_radius = m_earth_radius*0.27f;
   m_moon.m_speedRotation = 1.5f;
   m_moon.generateSphere(m_moon_position, m_moon_radius);
   m_moon.m_parent = &m_earth;
-  m_moon.m_angularVelocity = glm::vec3(0.2f, 2*PI, 0.2f);
+  m_moon.m_angularVelocity = glm::vec3(0.0f, 1.5f*PI, 0.0f);
   m_moon.loadModel(getAssetsPath()+ "moon.obj");
 
+  m_cube.initializeGL(m_cube_program);
   m_earth.initializeGL(m_astro_program);
   m_sun.initializeGL(m_astro_program);
   m_moon.initializeGL(m_astro_program);
@@ -150,7 +156,7 @@ void OpenGLWindow::paintGL() {
   abcg::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   abcg::glViewport(0, 0, m_viewportWidth, m_viewportHeight);
-
+  m_cube.paintGL(m_camera);
   m_earth.paintGL(m_camera, deltaTime);
   m_sun.paintGL(m_camera, deltaTime);
   m_moon.paintGL(m_camera, deltaTime);

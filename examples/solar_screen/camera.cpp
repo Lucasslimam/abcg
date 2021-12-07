@@ -12,6 +12,11 @@ void Camera::computeViewMatrix() {
   m_viewMatrix = glm::lookAt(m_eye, m_at, m_up);
 }
 
+//O universo nao pode ser afetado pela posicao da camera
+glm::mat4 Camera::computeSkyBoxViewMatrix() const {
+  return glm::lookAt(glm::vec3(0.0), m_at-m_eye, m_up);
+}
+
 void Camera::orbit(float angle) {
   
   glm::mat4 transform{glm::mat4(1.0f)};
@@ -63,3 +68,4 @@ void Camera::pan(float speed) {
 
   computeViewMatrix();
 }
+

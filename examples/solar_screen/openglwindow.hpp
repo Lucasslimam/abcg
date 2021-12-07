@@ -6,6 +6,7 @@
 #include "abcg.hpp"
 #include "camera.hpp"
 #include "astro.hpp"
+#include "cube.hpp"
 #include "vertex.hpp"
 
 
@@ -24,7 +25,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   GLuint m_EBO{};
   GLuint m_program{};
   GLuint m_astro_program{};
-  GLuint m_box_program{};
+  GLuint m_cube_program{};
 
   int m_viewportWidth{};
   int m_viewportHeight{};
@@ -33,6 +34,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   Astro m_earth;
   Astro m_sun;
   Astro m_moon;
+  Cube m_cube;
 
   glm::mat4 m_modelMatrix{1.0f};
   glm::mat4 m_viewMatrix{1.0f};

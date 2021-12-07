@@ -259,3 +259,14 @@ void OpenGLWindow::update() {
   m_camera.truck(m_truckSpeed * deltaTime);
   m_camera.pan(m_panSpeed * deltaTime);
 }
+
+
+
+void OpenGLWindow::loadCubeTexture(const std::string& path) {
+  if (!std::filesystem::exists(path)) return;
+
+  abcg::glDeleteTextures(1, &m_cubeTexture);
+  m_cubeTexture = abcg::opengl::loadCubemap(
+      {path + "posx.jpg", path + "negx.jpg", path + "posy.jpg",
+       path + "negy.jpg", path + "posz.jpg", path + "negz.jpg"});
+}

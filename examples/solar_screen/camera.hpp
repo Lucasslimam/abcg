@@ -16,6 +16,8 @@ class Camera {
   void truck(float speed);
   void pan(float speed);
 
+  glm::mat4 computeSkyBoxViewMatrix() const;
+
   // Matrix to change from world space to camera soace
   glm::mat4 m_viewMatrix;
 

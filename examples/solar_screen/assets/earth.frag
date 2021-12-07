@@ -60,8 +60,8 @@ vec4 BlinnPhong(vec3 N, vec3 L, vec3 V, vec2 texCoord) {
 }
 
 void main() {
-  //vec2 texCoord = SphericalMapping(fragPObj);
-  vec4 color = BlinnPhong(fragN, fragL, fragV, fragTexCoord);
+  vec2 texCoord = SphericalMapping(fragPObj);
+  vec4 color = BlinnPhong(fragN, fragL, fragV, texCoord);
 
   if (gl_FrontFacing) {
     outColor = color;

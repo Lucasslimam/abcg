@@ -234,7 +234,7 @@ void Astro::changeColor() {
 glm::mat4 Astro::calcLocalMatrix() {
   glm::mat4 localMatrix = glm::mat4(1.0f);
   localMatrix = glm::translate(localMatrix, m_position);
-  localMatrix = glm::rotate(localMatrix, glm::radians(90.0f), glm::vec3(0, 1, 0));
+  localMatrix = glm::rotate(localMatrix, 0.0f, glm::vec3(0, 1, 0));
   localMatrix = glm::scale(localMatrix, m_scale);
   return localMatrix;
 }
