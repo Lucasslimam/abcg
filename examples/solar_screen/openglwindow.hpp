@@ -17,7 +17,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   void paintUI() override;
   void resizeGL(int width, int height) override;
   void terminateGL() override;
-  void handleEvent(SDL_Event& ev);
+  void handleEvent(SDL_Event& ev) override;
 
  private:
   GLuint m_VAO{};
@@ -35,19 +35,6 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   Astro m_sun;
   Astro m_moon;
   Cube m_cube;
-
-  glm::mat4 m_modelMatrix{1.0f};
-  glm::mat4 m_viewMatrix{1.0f};
-  glm::mat4 m_projMatrix{1.0f};
-
-  glm::vec4 m_lightDir{-1.0f, -1.0f, -1.0f, 0.0f};
-  glm::vec4 m_Ia{1.0f, 1.0f, 1.0f, 1.0f};
-  glm::vec4 m_Id{1.0f, 1.0f, 1.0f, 1.0f};
-  glm::vec4 m_Is{1.0f, 1.0f, 1.0f, 1.0f};
-  glm::vec4 m_Ka{0.1f, 0.1f, 0.1f, 1.0f};
-  glm::vec4 m_Kd{0.7f, 0.7f, 0.7f, 1.0f};
-  glm::vec4 m_Ks{1.0f, 1.0f, 1.0f, 1.0f};
-  float m_shininess{25.0f};
 
   std::vector<Vertex> m_vertices;
   std::vector<GLuint> m_indices;

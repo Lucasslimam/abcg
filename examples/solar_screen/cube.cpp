@@ -49,7 +49,7 @@ void Cube::paintGL(const Camera& camera) {
 
   abcg::glUniformMatrix4fv(m_viewMatrixLoc, 1, GL_FALSE, &camera.computeSkyBoxViewMatrix()[0][0]);
   abcg::glUniformMatrix4fv(m_projMatrixLoc, 1, GL_FALSE, &camera.m_projMatrix[0][0]);
-  abcg::glUniform1i(m_skyTexLoc, 0);
+  abcg::glUniform1i(m_skyTexLoc, 1);
 
   abcg::glBindVertexArray(m_vao);
 

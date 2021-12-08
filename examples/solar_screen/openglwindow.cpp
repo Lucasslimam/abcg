@@ -193,5 +193,5 @@ void OpenGLWindow::update(float deltaTime) {
   m_camera.dolly(m_dollySpeed * deltaTime);
   m_camera.truck(m_truckSpeed * deltaTime);
   m_camera.pan(m_panSpeed * deltaTime);
-  m_camera.computeViewMatrix(); 
+  m_camera.computeViewMatrix();
 }
