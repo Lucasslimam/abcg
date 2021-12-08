@@ -9,6 +9,8 @@
 #include <unordered_map>
 #include <glm/gtc/matrix_inverse.hpp>
 
+
+/* Controles para a camera */
 void OpenGLWindow::handleEvent(SDL_Event& ev) {
   if (ev.type == SDL_KEYDOWN) {
     if (ev.key.keysym.sym == SDLK_UP || ev.key.keysym.sym == SDLK_w)
@@ -54,8 +56,8 @@ void OpenGLWindow::initializeGL() {
   m_cube_program = createProgramFromFile(getAssetsPath() + "cube.vert",
                                     getAssetsPath() + "cube.frag");
 
-  // Load model
-    // Load cubemap
+
+  /*Carregando modelos e setando atributos das instancias*/
   m_cube.loadCubeTexture(getAssetsPath() + "maps/cube/");
   m_sun.m_velocity = glm::vec3(0.0f);
   m_sun.m_speedRotation = 0.2f;
@@ -135,11 +137,9 @@ void OpenGLWindow::loadModelFromFile(std::string_view path) {
       Vertex vertex{};
       vertex.position = {vx, vy, vz};
 
-      // If hash doesn't contain this vertex
+      // Se o hash nao contem o vertice
       if (hash.count(vertex) == 0) {
-        // Add this index (size of m_vertices)
         hash[vertex] = m_vertices.size();
-        // Add this vertex
         m_vertices.push_back(vertex);
       }
 
@@ -152,13 +152,18 @@ void OpenGLWindow::paintGL() {
   const float deltaTime{static_cast<float>(getDeltaTime())};
   update(deltaTime);
 
-  // Clear color buffer and depth buffer
+  // Limpando buffer de cor e profundidade
   abcg::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   abcg::glViewport(0, 0, m_viewportWidth, m_viewportHeight);
+
+  /*Desenha SpaceCube*/
   m_cube.paintGL(m_camera);
+  /*Desenha Terra*/
   m_earth.paintGL(m_camera, deltaTime);
+  /*Desenha o Sol*/
   m_sun.paintGL(m_camera, deltaTime);
+  /*Desenha a Lua*/
   m_moon.paintGL(m_camera, deltaTime);
 
   abcg::glUseProgram(0);

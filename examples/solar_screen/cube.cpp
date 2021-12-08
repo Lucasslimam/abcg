@@ -1,7 +1,8 @@
 #include "cube.hpp"
 
+
+/*Funcao utilizada para carregar a textura de cada uma das faces do cubo*/
 void Cube::loadCubeTexture(const std::string& path) {
-  //if (!std::filesystem::exists(path)) return;
 
   abcg::glDeleteTextures(1, &m_cubeTexture);
   m_cubeTexture = abcg::opengl::loadCubemap(
@@ -10,26 +11,27 @@ void Cube::loadCubeTexture(const std::string& path) {
 
 }
 
+/*Criando Locs para a criacao da Skybox, que sera desenhado na paintGL*/
 void Cube::initializeGL(GLuint program) {
   m_program = program;
 
   m_viewMatrixLoc = abcg::glGetUniformLocation(m_program, "viewMatrix");
   m_projMatrixLoc = abcg::glGetUniformLocation(m_program, "projMatrix");
   m_skyTexLoc = abcg::glGetUniformLocation(m_program, "skyTex");
-  // Generate VBO
+  // Gerando VBO
   abcg::glGenBuffers(1, &m_vbo);
   abcg::glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
   abcg::glBufferData(GL_ARRAY_BUFFER, sizeof(m_positions),
                      m_positions.data(), GL_STATIC_DRAW);
   abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-  // Get location of attributes in the program
+  // Pegando posicao do atributo inPosition
   const GLint positionAttribute{abcg::glGetAttribLocation(m_program, "inPosition")};
 
-  // Create VAO
+  // Criando VAO
   abcg::glGenVertexArrays(1, &m_vao);
 
-  // Bind vertex attributes to current VAO
+  // Bind atributos dos vertices ao VAO acima
   abcg::glBindVertexArray(m_vao);
 
   abcg::glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
@@ -37,7 +39,7 @@ void Cube::initializeGL(GLuint program) {
   abcg::glVertexAttribPointer(positionAttribute, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
   abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-  // End of binding to current VAO
+  // Retirando Bind do VAO
   abcg::glBindVertexArray(0);
 }
 
