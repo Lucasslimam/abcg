@@ -3,27 +3,31 @@
 **RA**: 11201722101
 
 **Link de acesso para o jogo na web**: https://lucasslimam.github.io/abcg/
-**Diretório do código fonte**: abcg/examples/screensaver/
+
+**Diretório do código fonte**: abcg/examples/solar_screen  na **Branch Solar**
 
 # Proposta da aplicação
-A intenção do projeto foi fazer um screensaver baseado em transformações geradas por colisão e somadas a algum efeito visual nos objetos e também houve a intenção de lidar com a animação da própria câmera.
-
-Dessa forma, o projeto em questão se trata de um screensaver composto por uma esfera e um cubo em um chão xadrez, de tal forma que a esfera inicia com uma cor e a cada colisão, a esfera transfere sua cor para o cubo em que está inserida, e também há a interação colisão-chão, pois o chão imitará a diferença de cores existentes entre a esfera e a caixa, de tal forma que o chão continua tendo o aspecto de xadrez mas com as cores alternando de acordo com a esfera e a caixa. Além disso, a próxima cor da esfera após cada colisão é completamente aleatória.
+A intenção do projeto foi aplicar os conceitos de geração de Objetos em tempo de processamento, praticar a utilização de iluminação e textura através da programação de um **Sistema Solar** simplificado.
 
 # Funcionamento
-Para a transparência da caixa são renderizados apenas os triângulos internos, possibilitando que pudéssemos ver as colisões esfera-caixa. A mudança de cores é feita todas pela função que verifica colisão, sendo a colisão detectada por uma distância radial em relação ao centro da esfera. Após haver a colisão a caixa absorve a cor da esfera e a esfera muda de cor aleatoriamente, após essa mudança o chão absorve as cores da caixa e da esfera, mantendo sua alternância de cores.
+No projeto implementado, todos os astros são **esferas geradas por um algoritmo** ao invés de utilizar um .obj. A câmera utilizada foi na verdade, em parte, reutilizada do projeto anterior, apenas foram adicionadas as funções de movimentação da câmera para o usuário. Todos os astros são **instâncias parametrizadas** da mesma classe e os shaders, para iluminação, se utilizam de Blinn-Phong com sombreamento de Phong.
 
-Além disso, todas as colisões da bola são perfeitamente elásticas, não há alteração nenhuma na velocidade com cada uma das colisões e também a reflexão é feita apenas invertendo o vetor que dita a velocidade da bola em todos os eixos (x, y e z).
+Dado que temos um Sol em nosso sistema e ele se trata de uma fonte de luz, fazemos a **direção da luz partir da origem do Sol** para todo o espaço.
 
-Outro ponto que foi um desafio implementar, foi a câmera circundar o objeto ao invés do objeto rotacionar (fazendo o **m_eye** rotacionar em torno do **m_at**). Com isso, precisamos tomar **m_at** como o ponto de referência e então transladamos o **m_eye** em **-m_at**, em seguida, aplicamos a rotação com o ângulo recebido em torno do eixo **m_up**, e por fim, voltamos para o espaço original transladando **m_eye** por **+m_at**.
+Além disso, para ter a sensação de infinito, foi utilizado **mapeamento cúbico** com texturas de espaço, para simular realmente um espaço infinito, pois a câmera será sempre a origem, ou seja, ela sempre estará inserida no espaço criado.
 
 
 # Resumo dos Desafios
-0. Planejar/criar os objetos bola e cubo.
-1. Conseguir tornar a caixa "transparente" para ver a bola.
-2. Implementar mudança de cores pós colisão.
-3. Implementar a física da bola.
-4. Fazer a câmera girar em torno do cubo.
+0. Entender como criar uma esfera por um algoritmo;
+1. Utilizar o mapeamento cúbico com a lookat; 
+2. Fazer o Sol ditar a direção da luz no sistema;
+3. Implementar dependencias de orbitas.
+
 
 # Manual
-**Controles:** Nenhum
+|Tecla   | Ação             |
+|--------|------------------|
+| W | Ir para frente    |
+| A | Ir para esquerda |
+| S | Ir para fras  |
+| D | Ir para direita |
